@@ -21,10 +21,7 @@ namespace semestralka_routing_simulation
 
         private void button1_Click(object sender, EventArgs e)
         {
-            int a = 2;
-            int b = 3;
-            Simulation.sumTwoNumbers(a, b, this.label1);
-            Debug.WriteLine("Simulation started");
+            Simulation.RunSimulation();
         }
     }
 }
