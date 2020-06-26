@@ -11,14 +11,15 @@ namespace semestralka_routing_simulation
     public enum EventType
     {
         SendPacket,
+        FinishSending,
         ProcessPacket,
         ReceivePacket
     }
 
     class Packet
     {
-        int source, destination;
-        int ID;
+        public int source, destination;
+        public int ID;
  
         public Packet(int source, int destination, int ID)
         {
@@ -28,67 +29,146 @@ namespace semestralka_routing_simulation
         }
     }
 
+    // Links are one-directional, i.e. for two connected devices there are two links.
+    // The network itself isn't directed, but this representation is more practical.
+    
+    class Link : Process
+    {
+        public int toID, timeToTransfer;
+        public bool busy;
+
+        public Link(int ID, int toID, int timeToTransfer)
+        {
+            this.ID = ID;
+            this.toID = toID;
+            this.timeToTransfer = timeToTransfer;
+            busy = false;
+            packets = new List<Packet>();
+        }
+
+        public override void HandleEvent(SimulationEvent simEvent, Model model)
+        {
+
+        }
+    }
+
+    // All processes share the same ID pool, packets have their own ID pool
     abstract class Process
     {
         public int ID;
-        public int TimeToProcess;
+        protected List<Packet> packets;
 
         public abstract void HandleEvent(SimulationEvent simEvent, Model model);
-    }
-    
-    class Router : Process
-    {
-        List<Packet> packets;
-        public Router(int id, int timeToProcess)
-        {
-            this.ID = id;
-            this.TimeToProcess = timeToProcess;
-            packets = new List<Packet>();
-        }
         public void addPacket(Packet packet)
         {
             packets.Add(packet);
         }
+    }
+    
+    class Router : Process
+    {
+        public int timeToProcess, routingTableIndex;
+        List<Link> links;
+        public Router(int id, int timeToProcess, int routingTableIndex)
+        {
+            this.ID = id;
+            this.timeToProcess = timeToProcess;
+            this.routingTableIndex = routingTableIndex;
+            this.packets = new List<Packet>();
+            links = new List<Link>();
+        }
+        public void addLink(Link link)
+        {
+            links.Add(link);
+        }
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
-
+            
         }
     }
     
     class Computer : Process
     {
-        List<Packet> packets;
-        public Computer(int id, int timeToProcess)
+        public int routingTableIndex;
+        List<Link> links;
+        public Computer(int id, int routingTableIndex)
         {
             this.ID = id;
-            this.TimeToProcess = timeToProcess;
+            this.routingTableIndex = routingTableIndex;
             packets = new List<Packet>();
+            links = new List<Link>();
         }
-
-        public void addPacket(Packet packet)
+        public void addLink(Link link)
         {
-            packets.Add(packet);
+            links.Add(link);
         }
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
+            // TODO redelegate tasks to Links
+            // - when computer is supposed to send a packet, its sole purpose will be to determine which
+            //   link is to be used and forward it
+            // - everything else is done inside link
+
+
             if (simEvent.eventType == EventType.SendPacket)
             {
                 if (packets.Count > 0)
                 {
                     Packet packet = packets[0];
-                    packets.RemoveAt(0);
+                    int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
+                    int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
+                    Process nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
 
-                    // TODO 
-
-                    // SimulationEvent simEvent = new SimulationEvent();
-                    // model.scheduler.Add()
+                    Link link = null;
+                    foreach (Link l in links)
+                    {
+                        if (l.toID == nextHopDevice.ID)
+                        {
+                            link = l;
+                        }
+                    }
+                    
+                    if (!link.busy)
+                    {
+                        link.busy = true;
+                        SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)link.timeToTransfer, this, EventType.FinishSending);
+                        model.scheduler.Add(finishSending);
+                    }
                 }
+            }
+            else if (simEvent.eventType == EventType.FinishSending)
+            {
+                Packet packet = packets[0];
+                packets.RemoveAt(0);
+
+                int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
+                int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
+                Process nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+
+                Link link = null;
+                foreach (Link l in links)
+                {
+                    if (l.toID == nextHopDevice.ID)
+                    {
+                        link = l;
+                    }
+                }
+
+                link.busy = false;
+
+                SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ReceivePacket);
+                model.scheduler.Add(receiveEvent);
+                nextHopDevice.addPacket(packet);
+
+                SimulationEvent trySendAnother = new SimulationEvent(model.time, this, EventType.SendPacket);
+                model.scheduler.Add(trySendAnother);
             }
         }
     }
     
     class Firewall : Process
     {
+        public int TimeToProcess;
         public Firewall(int id, int timeToProcess)
         {
             this.ID = id;
@@ -174,19 +254,50 @@ namespace semestralka_routing_simulation
     
     static class Simulation
     {
-
+        public static int routingIndex = 0;
+        public static Dictionary<int, Process> routingIndexToDevice = new Dictionary<int, Process>(); 
+        public static Dictionary<int, int> deviceIndexToRoutingIndex = new Dictionary<int, int>();
         public static List<Router> getRouters()
         {
             List<Router> routers = new List<Router>();
-            routers.Add(new Router(1, 1));
+            Router router = new Router(1, 1, routingIndex);
+
+            Link link = new Link(1, 2, 5);
+            router.addLink(link);
+            link = new Link(2, 3, 3);
+            router.addLink(link);
+
+            routers.Add(router);
+            routingIndexToDevice.Add(routingIndex, router);
+            deviceIndexToRoutingIndex.Add(router.ID, routingIndex);
+            routingIndex += 1;
             return routers;
         }
 
         public static List<Computer> getComputers()
         {
             List<Computer> computers = new List<Computer>();
-            computers.Add(new Computer(2, 1));
-            computers.Add(new Computer(3, 1));
+            
+            Computer computer = new Computer(2, routingIndex);
+
+            Link link = new Link(3, 1, 5);
+            computer.addLink(link);
+
+            computers.Add(computer);
+            routingIndexToDevice.Add(routingIndex, computer);
+            deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
+            routingIndex += 1;
+
+            computer = new Computer(3, routingIndex);
+
+            link = new Link(4, 1, 3);
+            computer.addLink(link);
+
+            computers.Add(computer);
+            routingIndexToDevice.Add(routingIndex, computer);
+            deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
+            routingIndex += 1;
+            
             return computers;
         }
 
@@ -200,9 +311,9 @@ namespace semestralka_routing_simulation
         public static int[,] getRouting()
         {
             int[,] routing_table = {
-                { 1, 2, 3 },
-                { 2, 2, 1 },
-                { 3, 1, 3 }
+                { 0, 1, 2 },
+                { 1, 1, 0 },
+                { 2, 0, 2 }
             };
             return routing_table;
         }
@@ -247,6 +358,7 @@ namespace semestralka_routing_simulation
             SimulationEvent simEvent = scheduler.GetFirst();
             while (simEvent != null)
             {
+                model.time = simEvent.time;
                 simEvent.execute(model);
                 simEvent = scheduler.GetFirst();
             }
