@@ -31,24 +31,50 @@ namespace semestralka_routing_simulation
 
     // Links are one-directional, i.e. for two connected devices there are two links.
     // The network itself isn't directed, but this representation is more practical.
-    
     class Link : Process
     {
         public int toID, timeToTransfer;
         public bool busy;
+        public Device sourceDevice;
 
-        public Link(int ID, int toID, int timeToTransfer)
+        public Link(int ID, int toID, int timeToTransfer, Device sourceDevice)
         {
             this.ID = ID;
             this.toID = toID;
             this.timeToTransfer = timeToTransfer;
+            this.sourceDevice = sourceDevice;
             busy = false;
-            packets = new List<Packet>();
+            packetsOut = new List<Packet>();
         }
 
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
+            if (simEvent.eventType == EventType.SendPacket)
+            {
+                if (packetsOut.Count > 0 && !busy)
+                {
+                    SimulationEvent finishSending = new SimulationEvent(model.time + (ulong) timeToTransfer, this, EventType.FinishSending);
+                    model.scheduler.Add(finishSending);
+                    busy = true;
+                }
+            }
+            else if (simEvent.eventType == EventType.FinishSending)
+            {
+                Packet packet = packetsOut[0];
+                packetsOut.RemoveAt(0);
 
+                int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
+                int nextHopRoutingIndex = model.routingTable[sourceDevice.routingTableIndex, destinationRoutingIndex];
+                Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+
+                SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ReceivePacket);
+                model.scheduler.Add(receiveEvent);
+                nextHopDevice.addPacketIn(packet);
+
+                SimulationEvent trySendAnother = new SimulationEvent(model.time, this, EventType.SendPacket);
+                model.scheduler.Add(trySendAnother);
+                busy = false;
+            }
         }
     }
 
@@ -56,94 +82,56 @@ namespace semestralka_routing_simulation
     abstract class Process
     {
         public int ID;
-        protected List<Packet> packets;
+        protected List<Packet> packetsOut;
 
         public abstract void HandleEvent(SimulationEvent simEvent, Model model);
-        public void addPacket(Packet packet)
+        public void addPacketOut(Packet packetOut)
         {
-            packets.Add(packet);
+            packetsOut.Add(packetOut);
+        }
+    }
+
+    abstract class Device : Process
+    {
+        public int routingTableIndex;
+        protected List<Link> links;
+        protected List<Packet> packetsIn;
+
+        public void addLink(Link link)
+        {
+            links.Add(link);
+        }
+        public void addPacketIn(Packet packetIn)
+        {
+            packetsIn.Add(packetIn);
         }
     }
     
-    class Router : Process
+    class Router : Device
     {
-        public int timeToProcess, routingTableIndex;
-        List<Link> links;
+        public int timeToProcess;
         public Router(int id, int timeToProcess, int routingTableIndex)
         {
             this.ID = id;
             this.timeToProcess = timeToProcess;
             this.routingTableIndex = routingTableIndex;
-            this.packets = new List<Packet>();
+            packetsIn = new List<Packet>();
+            packetsOut = new List<Packet>();
             links = new List<Link>();
         }
-        public void addLink(Link link)
-        {
-            links.Add(link);
-        }
+        
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
-            
-        }
-    }
-    
-    class Computer : Process
-    {
-        public int routingTableIndex;
-        List<Link> links;
-        public Computer(int id, int routingTableIndex)
-        {
-            this.ID = id;
-            this.routingTableIndex = routingTableIndex;
-            packets = new List<Packet>();
-            links = new List<Link>();
-        }
-        public void addLink(Link link)
-        {
-            links.Add(link);
-        }
-        public override void HandleEvent(SimulationEvent simEvent, Model model)
-        {
-            // TODO redelegate tasks to Links
-            // - when computer is supposed to send a packet, its sole purpose will be to determine which
-            //   link is to be used and forward it
-            // - everything else is done inside link
-
+            // TODO receive event
 
             if (simEvent.eventType == EventType.SendPacket)
             {
-                if (packets.Count > 0)
-                {
-                    Packet packet = packets[0];
-                    int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
-                    int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
-                    Process nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
-
-                    Link link = null;
-                    foreach (Link l in links)
-                    {
-                        if (l.toID == nextHopDevice.ID)
-                        {
-                            link = l;
-                        }
-                    }
-                    
-                    if (!link.busy)
-                    {
-                        link.busy = true;
-                        SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)link.timeToTransfer, this, EventType.FinishSending);
-                        model.scheduler.Add(finishSending);
-                    }
-                }
-            }
-            else if (simEvent.eventType == EventType.FinishSending)
-            {
-                Packet packet = packets[0];
-                packets.RemoveAt(0);
+                Packet packet = packetsOut[0];
+                packetsOut.RemoveAt(0);
 
                 int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
                 int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
-                Process nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+                Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
 
                 Link link = null;
                 foreach (Link l in links)
@@ -154,14 +142,46 @@ namespace semestralka_routing_simulation
                     }
                 }
 
-                link.busy = false;
+                SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
+                link.addPacketOut(packet);
+                model.scheduler.Add(sendPacket);
+            }
+        }
+    }
+    
+    class Computer : Device
+    {
+        public Computer(int id, int routingTableIndex)
+        {
+            this.ID = id;
+            this.routingTableIndex = routingTableIndex;
+            packetsIn = new List<Packet>();
+            packetsOut = new List<Packet>();
+            links = new List<Link>();
+        }
+        public override void HandleEvent(SimulationEvent simEvent, Model model)
+        {
+            if (simEvent.eventType == EventType.SendPacket)
+            {
+                Packet packet = packetsOut[0];
+                packetsOut.RemoveAt(0);
 
-                SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ReceivePacket);
-                model.scheduler.Add(receiveEvent);
-                nextHopDevice.addPacket(packet);
+                int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
+                int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
+                Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
 
-                SimulationEvent trySendAnother = new SimulationEvent(model.time, this, EventType.SendPacket);
-                model.scheduler.Add(trySendAnother);
+                Link link = null;
+                foreach (Link l in links)
+                {
+                    if (l.toID == nextHopDevice.ID)
+                    {
+                        link = l;
+                    }
+                }
+
+                SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
+                link.addPacketOut(packet);
+                model.scheduler.Add(sendPacket);
             }
         }
     }
@@ -255,16 +275,16 @@ namespace semestralka_routing_simulation
     static class Simulation
     {
         public static int routingIndex = 0;
-        public static Dictionary<int, Process> routingIndexToDevice = new Dictionary<int, Process>(); 
+        public static Dictionary<int, Device> routingIndexToDevice = new Dictionary<int, Device>(); 
         public static Dictionary<int, int> deviceIndexToRoutingIndex = new Dictionary<int, int>();
         public static List<Router> getRouters()
         {
             List<Router> routers = new List<Router>();
             Router router = new Router(1, 1, routingIndex);
 
-            Link link = new Link(1, 2, 5);
+            Link link = new Link(1, 2, 5, router);
             router.addLink(link);
-            link = new Link(2, 3, 3);
+            link = new Link(2, 3, 3, router);
             router.addLink(link);
 
             routers.Add(router);
@@ -280,7 +300,7 @@ namespace semestralka_routing_simulation
             
             Computer computer = new Computer(2, routingIndex);
 
-            Link link = new Link(3, 1, 5);
+            Link link = new Link(3, 1, 5, computer);
             computer.addLink(link);
 
             computers.Add(computer);
@@ -290,7 +310,7 @@ namespace semestralka_routing_simulation
 
             computer = new Computer(3, routingIndex);
 
-            link = new Link(4, 1, 3);
+            link = new Link(4, 1, 3, computer);
             computer.addLink(link);
 
             computers.Add(computer);
@@ -332,11 +352,14 @@ namespace semestralka_routing_simulation
                 if (from == to) continue;
 
                 Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1);
-                computers[from].addPacket(packet);
+                computers[from].addPacketOut(packet);
+
+                // Note that the time of sending doesn't need to correspond to this particular packet, i.e.
+                // at timestep `when` some packet of `from` computer will be sent, not neccessarily this one.
                 SimulationEvent simEvent = new SimulationEvent(when, computers[from], EventType.SendPacket);
                 scheduler.Add(simEvent);
 
-                Debug.WriteLine($"Created packet with id {i + 1} from computer {computers[from].ID} to computer {computers[to].ID} at time {when}");
+                Debug.WriteLine($"Created packet with id {i + 1} from computer {computers[from].ID} to computer {computers[to].ID}");
 
                 i += 1;
             }
