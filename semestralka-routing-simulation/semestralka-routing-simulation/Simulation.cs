@@ -13,7 +13,7 @@ namespace semestralka_routing_simulation
         SendPacket,
         FinishSending,
         ProcessPacket,
-        ReceivePacket
+        FinishProcessing
     }
 
     class Packet
@@ -67,7 +67,7 @@ namespace semestralka_routing_simulation
                 int nextHopRoutingIndex = model.routingTable[sourceDevice.routingTableIndex, destinationRoutingIndex];
                 Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
 
-                SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ReceivePacket);
+                SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ProcessPacket);
                 model.scheduler.Add(receiveEvent);
                 nextHopDevice.addPacketIn(packet);
 
@@ -110,6 +110,7 @@ namespace semestralka_routing_simulation
     class Router : Device
     {
         public int timeToProcess;
+        public bool processing;
         public Router(int id, int timeToProcess, int routingTableIndex)
         {
             this.ID = id;
@@ -118,12 +119,11 @@ namespace semestralka_routing_simulation
             packetsIn = new List<Packet>();
             packetsOut = new List<Packet>();
             links = new List<Link>();
+            processing = false;
         }
         
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
-            // TODO receive event
-
             if (simEvent.eventType == EventType.SendPacket)
             {
                 Packet packet = packetsOut[0];
@@ -145,6 +145,28 @@ namespace semestralka_routing_simulation
                 SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
                 link.addPacketOut(packet);
                 model.scheduler.Add(sendPacket);
+            }
+            else if (simEvent.eventType == EventType.ProcessPacket)
+            {
+                if (packetsIn.Count > 0 && !processing)
+                {
+                    processing = true;
+                    SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong) timeToProcess, this, EventType.FinishProcessing);
+                    model.scheduler.Add(processingFinished);
+                }
+            }
+            else if (simEvent.eventType == EventType.FinishProcessing)
+            {
+                processing = false;
+                Packet packet = packetsIn[0];
+                packetsIn.RemoveAt(0);
+
+                SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
+                addPacketOut(packet);
+                model.scheduler.Add(sendPacket);
+
+                SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
+                model.scheduler.Add(tryProcessAnother);
             }
         }
     }
@@ -183,6 +205,12 @@ namespace semestralka_routing_simulation
                 link.addPacketOut(packet);
                 model.scheduler.Add(sendPacket);
             }
+            else if (simEvent.eventType == EventType.ProcessPacket)
+            {
+                Packet packet = packetsIn[0];
+                packetsIn.RemoveAt(0);
+                Debug.WriteLine($"Computer {ID} received packet with id {packet.ID} from computer {packet.source} in time {model.time}");
+            }
         }
     }
     
@@ -215,6 +243,8 @@ namespace semestralka_routing_simulation
 
         public void execute(Model model)
         {
+
+            Debug.WriteLine($"{time}: Process {process.ID} is handling event of type {eventType}");
             process.HandleEvent(this, model);
         }
     }
@@ -268,7 +298,7 @@ namespace semestralka_routing_simulation
             firewalls = Simulation.getFirewalls();
             routingTable = Simulation.getRouting();
             this.scheduler = scheduler;
-            Simulation.generatePackets(computers, scheduler, 5, 100);
+            Simulation.generatePackets(computers, scheduler, 20, 100);
         }
     }
     
@@ -282,9 +312,9 @@ namespace semestralka_routing_simulation
             List<Router> routers = new List<Router>();
             Router router = new Router(1, 1, routingIndex);
 
-            Link link = new Link(1, 2, 5, router);
+            Link link = new Link(5, 2, 5, router);
             router.addLink(link);
-            link = new Link(2, 3, 3, router);
+            link = new Link(6, 3, 3, router);
             router.addLink(link);
 
             routers.Add(router);
@@ -300,7 +330,7 @@ namespace semestralka_routing_simulation
             
             Computer computer = new Computer(2, routingIndex);
 
-            Link link = new Link(3, 1, 5, computer);
+            Link link = new Link(7, 1, 5, computer);
             computer.addLink(link);
 
             computers.Add(computer);
@@ -310,7 +340,7 @@ namespace semestralka_routing_simulation
 
             computer = new Computer(3, routingIndex);
 
-            link = new Link(4, 1, 3, computer);
+            link = new Link(8, 1, 3, computer);
             computer.addLink(link);
 
             computers.Add(computer);
@@ -360,6 +390,7 @@ namespace semestralka_routing_simulation
                 scheduler.Add(simEvent);
 
                 Debug.WriteLine($"Created packet with id {i + 1} from computer {computers[from].ID} to computer {computers[to].ID}");
+                Debug.WriteLine($"Computer {computers[from].ID} is going to attempt to send some packet at time {when}");
 
                 i += 1;
             }
