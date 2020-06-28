@@ -14,16 +14,24 @@ namespace semestralka_routing_simulation
         FinishProcessing
     }
 
+    public enum Distribution
+    {
+        Uniform,
+        DiscreteGaussian
+    }
+
     class Packet
     {
         public int source, destination;
         public int ID;
+        public bool malicious;
  
-        public Packet(int source, int destination, int ID)
+        public Packet(int source, int destination, int ID, bool malicious)
         {
             this.source = source;
             this.destination = destination;
             this.ID = ID;
+            this.malicious = malicious;
         }
     }
 
@@ -338,7 +346,7 @@ namespace semestralka_routing_simulation
             firewalls = Simulation.getFirewalls(routers);
             routingTable = Simulation.getRouting();
             this.scheduler = scheduler;
-            Simulation.generatePackets(computers, scheduler, 5, 100);
+            Simulation.generatePackets(computers, scheduler, 5, 100, (double) 0.5, Distribution.DiscreteGaussian);
         }
     }
     
@@ -410,8 +418,27 @@ namespace semestralka_routing_simulation
             };
             return routing_table;
         }
+
+        // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
+        public static ulong getNextGaussian(ulong maxTime, Random rnd)
+        {
+            // When generated numbers gets out of bounds, regenerate
+            double randNormal = -1;
+            while (randNormal < 0 || randNormal > maxTime)
+            {
+                double mean = ((double)maxTime) / 2;
+                double std = ((double)maxTime) / 4;
+
+                double u1 = 1.0 - rnd.NextDouble();
+                double u2 = 1.0 - rnd.NextDouble();
+                double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+                randNormal = mean + std * randStdNormal;
+            }
+
+            return (ulong)randNormal;
+        }
  
-        public static void generatePackets(List<Computer> computers, Scheduler scheduler, int totalPackets, ulong maxTime)
+        public static void generatePackets(List<Computer> computers, Scheduler scheduler, int totalPackets, ulong maxTime, double maliciousProbability, Distribution distribution)
         {
             Random rnd = new Random(123);
 
@@ -420,11 +447,21 @@ namespace semestralka_routing_simulation
             {
                 int from = rnd.Next(computers.Count);
                 int to = rnd.Next(computers.Count);
-                ulong when = Get64BitRandom(maxTime, rnd);
+                ulong when = 0;
+                bool malicious = rnd.NextDouble() < maliciousProbability;
+
+                if (distribution == Distribution.Uniform)
+                {
+                    when = Get64BitRandom(maxTime, rnd);
+                }
+                else if (distribution == Distribution.DiscreteGaussian)
+                {
+                    when = getNextGaussian(maxTime, rnd);
+                }
 
                 if (from == to) continue;
 
-                Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1);
+                Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1, malicious);
                 computers[from].addPacketOut(packet);
 
                 // Note that the time of sending doesn't need to correspond to this particular packet, i.e.
