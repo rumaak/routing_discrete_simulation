@@ -109,6 +109,7 @@ namespace semestralka_routing_simulation
     {
         public int timeToProcess;
         public bool processing;
+        Firewall firewall;
         public Router(int id, int timeToProcess, int routingTableIndex)
         {
             this.ID = id;
@@ -118,6 +119,12 @@ namespace semestralka_routing_simulation
             packetsOut = new List<Packet>();
             links = new List<Link>();
             processing = false;
+            firewall = null;
+        }
+
+        public void setFirewall(Firewall firewall)
+        {
+            this.firewall = firewall;
         }
         
         public override void HandleEvent(SimulationEvent simEvent, Model model)
@@ -159,9 +166,18 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsIn[0];
                 packetsIn.RemoveAt(0);
 
-                SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
-                addPacketOut(packet);
-                model.scheduler.Add(sendPacket);
+                if (firewall != null)
+                {
+                    SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
+                    firewall.addPacketOut(packet);
+                    model.scheduler.Add(processPacket);
+                }
+                else
+                {
+                    SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
+                    addPacketOut(packet);
+                    model.scheduler.Add(sendPacket);
+                }
 
                 SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
                 model.scheduler.Add(tryProcessAnother);
@@ -214,15 +230,41 @@ namespace semestralka_routing_simulation
     
     class Firewall : Process
     {
-        public int TimeToProcess;
-        public Firewall(int id, int timeToProcess)
+        public int timeToProcess;
+        public bool processing;
+        Router router;
+        public Firewall(int id, int timeToProcess, Router router)
         {
             this.ID = id;
-            this.TimeToProcess = timeToProcess;
+            this.timeToProcess = timeToProcess;
+            packetsOut = new List<Packet>();
+            processing = false;
+            this.router = router;
         }
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
+            if (simEvent.eventType == EventType.ProcessPacket)
+            {
+                if (packetsOut.Count > 0 && !processing)
+                {
+                    processing = true;
+                    SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong) timeToProcess, this, EventType.FinishProcessing);
+                    model.scheduler.Add(processingFinished);
+                }
+            }
+            else if (simEvent.eventType == EventType.FinishProcessing)
+            {
+                processing = false;
+                Packet packet = packetsOut[0];
+                packetsOut.RemoveAt(0);
 
+                SimulationEvent sendPacket = new SimulationEvent(model.time, router, EventType.SendPacket);
+                router.addPacketOut(packet);
+                model.scheduler.Add(sendPacket);
+
+                SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
+                model.scheduler.Add(tryProcessAnother);
+            }
         }
     }
 
@@ -293,10 +335,10 @@ namespace semestralka_routing_simulation
             time = 0;
             routers = Simulation.getRouters();
             computers = Simulation.getComputers();
-            firewalls = Simulation.getFirewalls();
+            firewalls = Simulation.getFirewalls(routers);
             routingTable = Simulation.getRouting();
             this.scheduler = scheduler;
-            Simulation.generatePackets(computers, scheduler, 20, 100);
+            Simulation.generatePackets(computers, scheduler, 5, 100);
         }
     }
     
@@ -349,10 +391,13 @@ namespace semestralka_routing_simulation
             return computers;
         }
 
-        public static List<Firewall> getFirewalls()
+        public static List<Firewall> getFirewalls(List<Router> routers)
         {
+            Router router = routers[0];
             List<Firewall> firewalls = new List<Firewall>();
-            firewalls.Add(new Firewall(4, 1));
+            Firewall firewall = new Firewall(4, 1, router);
+            firewalls.Add(firewall);
+            router.setFirewall(firewall);
             return firewalls;
         }
 
