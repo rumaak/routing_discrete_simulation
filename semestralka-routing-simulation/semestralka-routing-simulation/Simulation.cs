@@ -25,6 +25,7 @@ namespace semestralka_routing_simulation
         public int source, destination;
         public int ID;
         public bool malicious;
+        public ulong timeout;
  
         public Packet(int source, int destination, int ID, bool malicious)
         {
@@ -59,9 +60,22 @@ namespace semestralka_routing_simulation
             {
                 if (packetsOut.Count > 0 && !busy)
                 {
-                    SimulationEvent finishSending = new SimulationEvent(model.time + (ulong) timeToTransfer, this, EventType.FinishSending);
-                    model.scheduler.Add(finishSending);
-                    busy = true;
+                    Packet packet = packetsOut[0];
+                    
+                    if (model.time <= packet.timeout)
+                    {
+                        SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)timeToTransfer, this, EventType.FinishSending);
+                        model.scheduler.Add(finishSending);
+                        busy = true;
+                    }
+                    else
+                    {
+                        packetsOut.RemoveAt(0);
+                        SimulationEvent trySendAnother = new SimulationEvent(model.time, this, EventType.SendPacket);
+                        model.scheduler.Add(trySendAnother);
+
+                        Debug.WriteLine($"Packet {packet.ID} timed out");
+                    }
                 }
             }
             else if (simEvent.eventType == EventType.FinishSending)
@@ -69,13 +83,20 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
-                int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
-                int nextHopRoutingIndex = model.routingTable[sourceDevice.routingTableIndex, destinationRoutingIndex];
-                Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+                if (model.time <= packet.timeout)
+                {
+                    int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
+                    int nextHopRoutingIndex = model.routingTable[sourceDevice.routingTableIndex, destinationRoutingIndex];
+                    Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
 
-                SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ProcessPacket);
-                model.scheduler.Add(receiveEvent);
-                nextHopDevice.addPacketIn(packet);
+                    SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ProcessPacket);
+                    model.scheduler.Add(receiveEvent);
+                    nextHopDevice.addPacketIn(packet);
+                }
+                else
+                {
+                    Debug.WriteLine($"Packet {packet.ID} timed out");
+                }
 
                 SimulationEvent trySendAnother = new SimulationEvent(model.time, this, EventType.SendPacket);
                 model.scheduler.Add(trySendAnother);
@@ -163,9 +184,22 @@ namespace semestralka_routing_simulation
             {
                 if (packetsIn.Count > 0 && !processing)
                 {
-                    processing = true;
-                    SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong) timeToProcess, this, EventType.FinishProcessing);
-                    model.scheduler.Add(processingFinished);
+                    Packet packet = packetsIn[0];
+
+                    if (model.time <= packet.timeout)
+                    {
+                        processing = true;
+                        SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong)timeToProcess, this, EventType.FinishProcessing);
+                        model.scheduler.Add(processingFinished);
+                    }
+                    else
+                    {
+                        packetsIn.RemoveAt(0);
+                        SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
+                        model.scheduler.Add(tryProcessAnother);
+
+                        Debug.WriteLine($"Packet {packet.ID} timed out");
+                    }
                 }
             }
             else if (simEvent.eventType == EventType.FinishProcessing)
@@ -174,17 +208,24 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsIn[0];
                 packetsIn.RemoveAt(0);
 
-                if (firewall != null)
+                if (model.time <= packet.timeout)
                 {
-                    SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
-                    firewall.addPacketOut(packet);
-                    model.scheduler.Add(processPacket);
+                    if (firewall != null)
+                    {
+                        SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
+                        firewall.addPacketOut(packet);
+                        model.scheduler.Add(processPacket);
+                    }
+                    else
+                    {
+                        SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
+                        addPacketOut(packet);
+                        model.scheduler.Add(sendPacket);
+                    }
                 }
                 else
                 {
-                    SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
-                    addPacketOut(packet);
-                    model.scheduler.Add(sendPacket);
+                    Debug.WriteLine($"Packet {packet.ID} timed out");
                 }
 
                 SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
@@ -210,6 +251,8 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
+                packet.timeout = model.time + model.timeout;
+
                 int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
                 int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
                 Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
@@ -231,7 +274,16 @@ namespace semestralka_routing_simulation
             {
                 Packet packet = packetsIn[0];
                 packetsIn.RemoveAt(0);
-                Debug.WriteLine($"Computer {ID} received packet with id {packet.ID} from computer {packet.source} in time {model.time}");
+                
+                if (model.time <= packet.timeout)
+                {
+                    Debug.WriteLine($"Computer {ID} received packet with id {packet.ID} from computer {packet.source} in time {model.time}, malicious: {packet.malicious}");
+                }
+                else
+                {
+                    Debug.WriteLine($"Packet {packet.ID} timed out");
+                }
+                
             }
         }
     }
@@ -255,9 +307,22 @@ namespace semestralka_routing_simulation
             {
                 if (packetsOut.Count > 0 && !processing)
                 {
-                    processing = true;
-                    SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong) timeToProcess, this, EventType.FinishProcessing);
-                    model.scheduler.Add(processingFinished);
+                    Packet packet = packetsOut[0];
+
+                    if (model.time <= packet.timeout)
+                    {
+                        processing = true;
+                        SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong)timeToProcess, this, EventType.FinishProcessing);
+                        model.scheduler.Add(processingFinished);
+                    }
+                    else
+                    {
+                        packetsOut.RemoveAt(0);
+                        SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
+                        model.scheduler.Add(tryProcessAnother);
+
+                        Debug.WriteLine($"Packet {packet.ID} timed out");
+                    }
                 }
             }
             else if (simEvent.eventType == EventType.FinishProcessing)
@@ -266,9 +331,20 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
-                SimulationEvent sendPacket = new SimulationEvent(model.time, router, EventType.SendPacket);
-                router.addPacketOut(packet);
-                model.scheduler.Add(sendPacket);
+                if (packet.malicious)
+                {
+                    Debug.WriteLine($"Firewall {this.ID} found out that packet {packet.ID} is malicious and discarded it.");
+                }
+                else if (model.time > packet.timeout)
+                {
+                    Debug.WriteLine($"Packet {packet.ID} timed out");
+                }
+                else
+                {
+                    SimulationEvent sendPacket = new SimulationEvent(model.time, router, EventType.SendPacket);
+                    router.addPacketOut(packet);
+                    model.scheduler.Add(sendPacket);
+                }
 
                 SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
                 model.scheduler.Add(tryProcessAnother);
@@ -331,14 +407,14 @@ namespace semestralka_routing_simulation
 
     class Model
     {
-        public ulong time;
+        public ulong time, timeout;
         public List<Router> routers;
         public List<Computer> computers;
         public List<Firewall> firewalls;
         public Scheduler scheduler;
         public int[,] routingTable;
 
-        public Model(Scheduler scheduler)
+        public Model(Scheduler scheduler, ulong timeout)
         {
             time = 0;
             routers = Simulation.getRouters();
@@ -346,7 +422,12 @@ namespace semestralka_routing_simulation
             firewalls = Simulation.getFirewalls(routers);
             routingTable = Simulation.getRouting();
             this.scheduler = scheduler;
-            Simulation.generatePackets(computers, scheduler, 5, 100, (double) 0.5, Distribution.DiscreteGaussian);
+            this.timeout = timeout;
+
+            int totalPackets = 5;
+            ulong maxTime = 100;
+            double maliciousProbability = 0.5;
+            Simulation.generatePackets(computers, scheduler, totalPackets, maxTime, maliciousProbability, Distribution.DiscreteGaussian);
         }
     }
     
@@ -469,7 +550,7 @@ namespace semestralka_routing_simulation
                 SimulationEvent simEvent = new SimulationEvent(when, computers[from], EventType.SendPacket);
                 scheduler.Add(simEvent);
 
-                Debug.WriteLine($"Created packet with id {i + 1} from computer {computers[from].ID} to computer {computers[to].ID}");
+                Debug.WriteLine($"Created packet with id {i + 1} from computer {computers[from].ID} to computer {computers[to].ID}, malicious: {malicious}");
                 Debug.WriteLine($"Computer {computers[from].ID} is going to attempt to send some packet at time {when}");
 
                 i += 1;
@@ -486,9 +567,10 @@ namespace semestralka_routing_simulation
         public static void RunSimulation()
         {
             Debug.WriteLine("Simulation started");
-            
+
+            ulong timeout = 15;
             Scheduler scheduler = new Scheduler();
-            Model model = new Model(scheduler);
+            Model model = new Model(scheduler, timeout);
             SimulationEvent simEvent = scheduler.GetFirst();
             while (simEvent != null)
             {
