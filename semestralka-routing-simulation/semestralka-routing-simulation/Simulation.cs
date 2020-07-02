@@ -23,11 +23,11 @@ namespace semestralka_routing_simulation
 
     class Packet
     {
-        public int source, destination, ID, attemptNumber;
+        public int source, destination, attemptNumber;
         public bool malicious, received;
-        public ulong timeout;
+        public ulong ID, timeout, timeFirstSent;
  
-        public Packet(int source, int destination, int ID, bool malicious)
+        public Packet(int source, int destination, ulong ID, bool malicious)
         {
             this.source = source;
             this.destination = destination;
@@ -262,8 +262,12 @@ namespace semestralka_routing_simulation
             {
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
+
+                packet.timeFirstSent = model.time;
                 
                 sendPacket(packet, model);
+
+                Debug.WriteLine($"{model.time}: Computer {ID} sends packet {packet.ID}");
             }
             else if (simEvent.eventType == EventType.ProcessPacket)
             {
@@ -273,7 +277,19 @@ namespace semestralka_routing_simulation
                 if (model.time <= packet.timeout)
                 {
                     packet.received = true;
-                    Debug.WriteLine($"Computer {ID} received packet with id {packet.ID} from computer {packet.source} in time {model.time}, malicious: {packet.malicious}");
+
+                    model.statistics.deliveredPackets += 1;
+                    model.statistics.totalDeliveryTime += model.time - packet.timeFirstSent;
+                    if (packet.malicious)
+                    {
+                        model.statistics.deliveredPacketsMalicious += 1;
+                    }
+                    else
+                    {
+                        model.statistics.totalNumberAttempts += packet.attemptNumber;
+                    }
+
+                    Debug.WriteLine($"Computer {ID} received packet with id {packet.ID} from computer {packet.source} in time {model.time}, malicious: {packet.malicious}, attempt number: {packet.attemptNumber}");
                 }
                 else
                 {
@@ -446,8 +462,9 @@ namespace semestralka_routing_simulation
         public List<Firewall> firewalls;
         public Scheduler scheduler;
         public int[,] routingTable;
+        public Statistics statistics;
 
-        public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts)
+        public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts, Statistics statistics)
         {
             time = 0;
             routers = Simulation.getRouters();
@@ -457,11 +474,14 @@ namespace semestralka_routing_simulation
             this.scheduler = scheduler;
             this.timeout = timeout;
             this.timeoutAttempts = timeoutAttempts;
+            this.statistics = statistics;
 
-            int totalPackets = 5;
+            ulong totalPackets = 10;
             ulong maxTime = 100;
-            double maliciousProbability = 0.5;
-            Simulation.generatePackets(computers, scheduler, totalPackets, maxTime, maliciousProbability, Distribution.DiscreteGaussian);
+            double maliciousProbability = 0.2;
+            Simulation.generatePackets(computers, scheduler, totalPackets, maxTime, maliciousProbability, statistics, Distribution.DiscreteGaussian);
+
+            this.statistics.sentPackets = totalPackets;
         }
     }
     
@@ -553,17 +573,22 @@ namespace semestralka_routing_simulation
             return (ulong)randNormal;
         }
  
-        public static void generatePackets(List<Computer> computers, Scheduler scheduler, int totalPackets, ulong maxTime, double maliciousProbability, Distribution distribution)
+        public static void generatePackets(List<Computer> computers, Scheduler scheduler, ulong totalPackets, ulong maxTime, double maliciousProbability, Statistics statistics, Distribution distribution)
         {
             Random rnd = new Random(123);
 
-            int i = 0;
+            ulong i = 0;
             while (i < totalPackets)
             {
                 int from = rnd.Next(computers.Count);
                 int to = rnd.Next(computers.Count);
                 ulong when = 0;
                 bool malicious = rnd.NextDouble() < maliciousProbability;
+
+                if (malicious)
+                {
+                    statistics.sentPacketsMalicious += 1;
+                }
 
                 if (distribution == Distribution.Uniform)
                 {
@@ -602,11 +627,12 @@ namespace semestralka_routing_simulation
         {
             Debug.WriteLine("Simulation started");
 
-            ulong timeout = 15;
+            ulong timeout = 10;
             // How many times PC tries to resend a packet if timeout occurs
             int timeoutAttempts = 3;
             Scheduler scheduler = new Scheduler();
-            Model model = new Model(scheduler, timeout, timeoutAttempts);
+            Statistics statistics = new Statistics();
+            Model model = new Model(scheduler, timeout, timeoutAttempts, statistics);
             SimulationEvent simEvent = scheduler.GetFirst();
             while (simEvent != null)
             {
@@ -614,6 +640,44 @@ namespace semestralka_routing_simulation
                 simEvent.execute(model);
                 simEvent = scheduler.GetFirst();
             }
+            statistics.lengthOfSimulation = model.time;
+
+            Debug.WriteLine($"Length of simulation: {statistics.lengthOfSimulation}");
+            Debug.WriteLine($"Sent / delivered packets: {statistics.sentPackets} / {statistics.deliveredPackets}");
+            Debug.WriteLine($"Sent / delivered malicious packets: {statistics.sentPacketsMalicious} / {statistics.deliveredPacketsMalicious}");
+            Debug.WriteLine($"Average time of delivery: {statistics.getAverageDeliveryTime()}");
+            Debug.WriteLine($"Average number of attempts: {statistics.getAverageNumberAttempts()}");
+        }
+    }
+
+    class Statistics
+    {
+        public ulong lengthOfSimulation;
+        public ulong sentPackets, deliveredPackets;
+        public ulong sentPacketsMalicious, deliveredPacketsMalicious;
+        public double totalDeliveryTime, totalNumberAttempts;
+
+        public Statistics()
+        {
+            lengthOfSimulation = 0;
+            sentPackets = 0;
+            deliveredPackets = 0;
+            sentPacketsMalicious = 0;
+            deliveredPacketsMalicious = 0;
+            totalDeliveryTime = 0;
+            totalNumberAttempts = 0;
+        }
+
+        // Can be infinity, includes malicious packets
+        public double getAverageDeliveryTime()
+        {
+            return totalDeliveryTime / deliveredPackets;
+        }
+
+        // Can be infinity, doesn't include malicious packets
+        public double getAverageNumberAttempts()
+        {
+            return totalNumberAttempts / (deliveredPackets - deliveredPacketsMalicious);
         }
     }
 }
