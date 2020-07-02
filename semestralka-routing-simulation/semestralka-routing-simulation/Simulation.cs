@@ -11,7 +11,8 @@ namespace semestralka_routing_simulation
         SendPacket,
         FinishSending,
         ProcessPacket,
-        FinishProcessing
+        FinishProcessing,
+        Timeout
     }
 
     public enum Distribution
@@ -22,9 +23,8 @@ namespace semestralka_routing_simulation
 
     class Packet
     {
-        public int source, destination;
-        public int ID;
-        public bool malicious;
+        public int source, destination, ID, attemptNumber;
+        public bool malicious, received;
         public ulong timeout;
  
         public Packet(int source, int destination, int ID, bool malicious)
@@ -33,6 +33,8 @@ namespace semestralka_routing_simulation
             this.destination = destination;
             this.ID = ID;
             this.malicious = malicious;
+            received = false;
+            attemptNumber = 1;
         }
     }
 
@@ -132,6 +134,23 @@ namespace semestralka_routing_simulation
         {
             packetsIn.Add(packetIn);
         }
+        protected Link getLink(Packet packet, Model  model)
+        {
+            int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
+            int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
+            Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+
+            Link link = null;
+            foreach (Link l in links)
+            {
+                if (l.toID == nextHopDevice.ID)
+                {
+                    link = l;
+                }
+            }
+
+            return link;
+        }
     }
     
     class Router : Device
@@ -163,18 +182,7 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
-                int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
-                int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
-                Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
-
-                Link link = null;
-                foreach (Link l in links)
-                {
-                    if (l.toID == nextHopDevice.ID)
-                    {
-                        link = l;
-                    }
-                }
+                Link link = getLink(packet, model);
 
                 SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
                 link.addPacketOut(packet);
@@ -236,12 +244,16 @@ namespace semestralka_routing_simulation
     
     class Computer : Device
     {
+
+        List<Packet> packetsSent;
+        
         public Computer(int id, int routingTableIndex)
         {
             this.ID = id;
             this.routingTableIndex = routingTableIndex;
             packetsIn = new List<Packet>();
             packetsOut = new List<Packet>();
+            packetsSent = new List<Packet>();
             links = new List<Link>();
         }
         public override void HandleEvent(SimulationEvent simEvent, Model model)
@@ -250,25 +262,8 @@ namespace semestralka_routing_simulation
             {
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
-
-                packet.timeout = model.time + model.timeout;
-
-                int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
-                int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
-                Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
-
-                Link link = null;
-                foreach (Link l in links)
-                {
-                    if (l.toID == nextHopDevice.ID)
-                    {
-                        link = l;
-                    }
-                }
-
-                SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
-                link.addPacketOut(packet);
-                model.scheduler.Add(sendPacket);
+                
+                sendPacket(packet, model);
             }
             else if (simEvent.eventType == EventType.ProcessPacket)
             {
@@ -277,6 +272,7 @@ namespace semestralka_routing_simulation
                 
                 if (model.time <= packet.timeout)
                 {
+                    packet.received = true;
                     Debug.WriteLine($"Computer {ID} received packet with id {packet.ID} from computer {packet.source} in time {model.time}, malicious: {packet.malicious}");
                 }
                 else
@@ -285,6 +281,42 @@ namespace semestralka_routing_simulation
                 }
                 
             }
+            else if (simEvent.eventType == EventType.Timeout)
+            {
+                // Packets timeout in the order they are sent
+                Packet packet = packetsSent[0];
+                packetsSent.RemoveAt(0);
+
+                if (!packet.received)
+                {
+                    if (packet.attemptNumber < model.timeoutAttempts)
+                    {
+                        sendPacket(packet, model);
+                        packet.attemptNumber += 1;
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Packet {packet.ID} from computer {ID} couldn't be delivered in {model.timeoutAttempts} attempts");
+                    }
+                }
+
+            }
+        }
+        private void sendPacket(Packet packet, Model model)
+        {
+            packet.timeout = model.time + model.timeout;
+
+            Link link = getLink(packet, model);
+
+            SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
+            link.addPacketOut(packet);
+            model.scheduler.Add(sendPacket);
+
+            // Adding a single tick because timeout is inclusive (i.e. if packet arrives precisely in time of timeout,
+            // it is still considered to be received and it shouldn't be resent)
+            SimulationEvent resolveTimeout = new SimulationEvent(packet.timeout + 1, this, EventType.Timeout);
+            packetsSent.Add(packet);
+            model.scheduler.Add(resolveTimeout);
         }
     }
     
@@ -408,13 +440,14 @@ namespace semestralka_routing_simulation
     class Model
     {
         public ulong time, timeout;
+        public int timeoutAttempts;
         public List<Router> routers;
         public List<Computer> computers;
         public List<Firewall> firewalls;
         public Scheduler scheduler;
         public int[,] routingTable;
 
-        public Model(Scheduler scheduler, ulong timeout)
+        public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts)
         {
             time = 0;
             routers = Simulation.getRouters();
@@ -423,6 +456,7 @@ namespace semestralka_routing_simulation
             routingTable = Simulation.getRouting();
             this.scheduler = scheduler;
             this.timeout = timeout;
+            this.timeoutAttempts = timeoutAttempts;
 
             int totalPackets = 5;
             ulong maxTime = 100;
@@ -569,8 +603,10 @@ namespace semestralka_routing_simulation
             Debug.WriteLine("Simulation started");
 
             ulong timeout = 15;
+            // How many times PC tries to resend a packet if timeout occurs
+            int timeoutAttempts = 3;
             Scheduler scheduler = new Scheduler();
-            Model model = new Model(scheduler, timeout);
+            Model model = new Model(scheduler, timeout, timeoutAttempts);
             SimulationEvent simEvent = scheduler.GetFirst();
             while (simEvent != null)
             {
