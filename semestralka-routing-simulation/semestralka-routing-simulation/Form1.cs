@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
@@ -21,6 +22,7 @@ namespace semestralka_routing_simulation
         {
             InitializeComponent();
             nextID = 1;
+            setInputLimits();
             initializeDevices();
             initializeSimulationParameters();
         }
@@ -126,6 +128,25 @@ namespace semestralka_routing_simulation
             numericUpDownNumberAttempts.Text = numberAttempts.ToString();
             numericUpDownTimeout.Text = timeout.ToString();
             numericUpDownRandomSeed.Text = seed.ToString();
+        }
+
+        private void setInputLimits()
+        {
+            numericUpDownDeviceTransferTime.Maximum = int.MaxValue;
+            numericUpDownDeviceTimeProcess.Maximum = int.MaxValue;
+            numericUpDownDeviceTimeProcessFirewall.Maximum = int.MaxValue;
+
+            numericUpDownTotalPackets.Maximum = ulong.MaxValue;
+            numericUpDownSendUntil.Maximum = ulong.MaxValue;
+            numericUpDownProbabilityMalicious.Maximum = 1;
+            numericUpDownNumberAttempts.Maximum = 100;
+            numericUpDownTimeout.Maximum = ulong.MaxValue;
+            numericUpDownRandomSeed.Maximum = int.MaxValue;
+
+            numericUpDownProbabilityMalicious.Increment = 0.01M;
+
+            numericUpDownNumberAttempts.Minimum = 1;
+            numericUpDownTimeout.Minimum = 1;
         }
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)

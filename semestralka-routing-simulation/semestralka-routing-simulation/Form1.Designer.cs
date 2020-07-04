@@ -54,6 +54,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.groupBoxSimulationProperties = new System.Windows.Forms.GroupBox();
+            this.numericUpDownRandomSeed = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownTimeout = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownNumberAttempts = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownProbabilityMalicious = new System.Windows.Forms.NumericUpDown();
@@ -77,7 +78,6 @@
             this.textBoxSimulationLength = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSentMalicious = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSent = new System.Windows.Forms.TextBox();
-            this.numericUpDownRandomSeed = new System.Windows.Forms.NumericUpDown();
             this.groupBoxDevices.SuspendLayout();
             this.groupBoxDeviceProperties.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcess)).BeginInit();
@@ -86,6 +86,7 @@
             this.groupBoxDeviceConnections.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTransferTime)).BeginInit();
             this.groupBoxSimulationProperties.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRandomSeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTimeout)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumberAttempts)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownProbabilityMalicious)).BeginInit();
@@ -93,7 +94,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTotalPackets)).BeginInit();
             this.panelDistribution.SuspendLayout();
             this.groupBoxResults.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRandomSeed)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -372,6 +372,13 @@
             this.groupBoxSimulationProperties.TabStop = false;
             this.groupBoxSimulationProperties.Text = "Simulation parameters";
             // 
+            // numericUpDownRandomSeed
+            // 
+            this.numericUpDownRandomSeed.Location = new System.Drawing.Point(663, 116);
+            this.numericUpDownRandomSeed.Name = "numericUpDownRandomSeed";
+            this.numericUpDownRandomSeed.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownRandomSeed.TabIndex = 17;
+            // 
             // numericUpDownTimeout
             // 
             this.numericUpDownTimeout.Location = new System.Drawing.Point(663, 87);
@@ -388,6 +395,7 @@
             // 
             // numericUpDownProbabilityMalicious
             // 
+            this.numericUpDownProbabilityMalicious.DecimalPlaces = 5;
             this.numericUpDownProbabilityMalicious.Location = new System.Drawing.Point(663, 30);
             this.numericUpDownProbabilityMalicious.Name = "numericUpDownProbabilityMalicious";
             this.numericUpDownProbabilityMalicious.Size = new System.Drawing.Size(154, 23);
@@ -588,13 +596,6 @@
             this.textBoxPacketsSent.TabIndex = 19;
             this.textBoxPacketsSent.Text = "0";
             // 
-            // numericUpDownRandomSeed
-            // 
-            this.numericUpDownRandomSeed.Location = new System.Drawing.Point(663, 116);
-            this.numericUpDownRandomSeed.Name = "numericUpDownRandomSeed";
-            this.numericUpDownRandomSeed.Size = new System.Drawing.Size(154, 23);
-            this.numericUpDownRandomSeed.TabIndex = 17;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -621,6 +622,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTransferTime)).EndInit();
             this.groupBoxSimulationProperties.ResumeLayout(false);
             this.groupBoxSimulationProperties.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRandomSeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTimeout)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumberAttempts)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownProbabilityMalicious)).EndInit();
@@ -630,7 +632,6 @@
             this.panelDistribution.PerformLayout();
             this.groupBoxResults.ResumeLayout(false);
             this.groupBoxResults.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRandomSeed)).EndInit();
             this.ResumeLayout(false);
 
         }
