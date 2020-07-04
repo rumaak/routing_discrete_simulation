@@ -62,32 +62,32 @@ namespace semestralka_routing_simulation
                     comboBoxDeviceType.SelectedIndex = 0;
                     break;
             }
-            textBoxDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
+            numericUpDownDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
             if (selectedDevice.firewall)
             {
                 checkBoxDeviceFirewall.Enabled = true;
                 checkBoxDeviceFirewall.Checked = true;
-                textBoxDeviceTimeProcessFirewall.Text = selectedDevice.firewallTimeToProcess.ToString();
-                textBoxDeviceTimeProcessFirewall.Enabled = true;
+                numericUpDownDeviceTimeProcessFirewall.Text = selectedDevice.firewallTimeToProcess.ToString();
+                numericUpDownDeviceTimeProcessFirewall.Enabled = true;
             }
             else
             {
                 checkBoxDeviceFirewall.Checked = false;
-                textBoxDeviceTimeProcessFirewall.Text = "";
-                textBoxDeviceTimeProcessFirewall.Enabled = false;
+                numericUpDownDeviceTimeProcessFirewall.Text = "";
+                numericUpDownDeviceTimeProcessFirewall.Enabled = false;
             }
 
             if (selectedDevice.deviceType == DeviceType.Computer)
             {
                 checkBoxDeviceFirewall.Enabled = false;
-                textBoxDeviceTimeProcess.Enabled = false;
-                textBoxDeviceTimeProcess.Text = "";
+                numericUpDownDeviceTimeProcess.Enabled = false;
+                numericUpDownDeviceTimeProcess.Text = "";
             }
             else
             {
                 checkBoxDeviceFirewall.Enabled = true;
-                textBoxDeviceTimeProcess.Enabled = true;
-                textBoxDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
+                numericUpDownDeviceTimeProcess.Enabled = true;
+                numericUpDownDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
             }
 
             listBox2_SelectedIndexChanged(listBoxDeviceConnections, e);
@@ -117,15 +117,15 @@ namespace semestralka_routing_simulation
             ulong timeout = 10;
             int seed = 123;
 
-            textBoxTotalPackets.Text = totalPackets.ToString();
-            textBoxSendUntil.Text = sendUntil.ToString();
+            numericUpDownTotalPackets.Text = totalPackets.ToString();
+            numericUpDownSendUntil.Text = sendUntil.ToString();
             // Uniform distribution
             radioButtonDistributionUniform.Checked = true;
 
-            textBoxProbabilityMalicious.Text = maliciousProbability.ToString();
-            textBoxNumberAttempts.Text = numberAttempts.ToString();
-            textBoxTimeout.Text = timeout.ToString();
-            textBoxRandomSeed.Text = seed.ToString();
+            numericUpDownProbabilityMalicious.Text = maliciousProbability.ToString();
+            numericUpDownNumberAttempts.Text = numberAttempts.ToString();
+            numericUpDownTimeout.Text = timeout.ToString();
+            numericUpDownRandomSeed.Text = seed.ToString();
         }
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -134,15 +134,15 @@ namespace semestralka_routing_simulation
             {
                 checkBoxDeviceConnected.Enabled = false;
                 checkBoxDeviceConnected.Checked = false;
-                textBoxDeviceTransferTime.Enabled = false;
-                textBoxDeviceTransferTime.Text = "";
+                numericUpDownDeviceTransferTime.Enabled = false;
+                numericUpDownDeviceTransferTime.Text = "";
                 return;
             }
 
             checkBoxDeviceConnected.Enabled = true;
             checkBoxDeviceConnected.Checked = false;
-            textBoxDeviceTransferTime.Text = "";
-            textBoxDeviceTransferTime.Enabled = false;
+            numericUpDownDeviceTransferTime.Text = "";
+            numericUpDownDeviceTransferTime.Enabled = false;
 
             FormDevice selectedDevice = (FormDevice)listBoxDevices.SelectedItem;
             FormDevice selectedDeviceConnections = (FormDevice)((ListBox)sender).SelectedItem;
@@ -153,8 +153,8 @@ namespace semestralka_routing_simulation
             if (transfer_time > 0)
             {
                 checkBoxDeviceConnected.Checked = true;
-                textBoxDeviceTransferTime.Enabled = true;
-                textBoxDeviceTransferTime.Text = transfer_time.ToString();
+                numericUpDownDeviceTransferTime.Enabled = true;
+                numericUpDownDeviceTransferTime.Text = transfer_time.ToString();
             }
         }
 
@@ -186,27 +186,27 @@ namespace semestralka_routing_simulation
             FormDevice device2 = (FormDevice)listBoxDeviceConnections.SelectedItem;
             if (((CheckBox) sender).Checked)
             {
-                textBoxDeviceTransferTime.Enabled = true;
+                numericUpDownDeviceTransferTime.Enabled = true;
                 int timeToTransfer = 1;
                 device1.addConnection(device2, timeToTransfer);
-                textBoxDeviceTransferTime.Text = timeToTransfer.ToString();
+                numericUpDownDeviceTransferTime.Text = timeToTransfer.ToString();
             }
             else
             {
-                textBoxDeviceTransferTime.Enabled = false;
+                numericUpDownDeviceTransferTime.Enabled = false;
                 device1.removeConnection(device2);
-                textBoxDeviceTransferTime.Text = "";
+                numericUpDownDeviceTransferTime.Text = "";
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void numericUpDownDeviceTransferTime_ValueChanged(object sender, EventArgs e)
         {
-            if (((TextBox)sender).Text != "")
+            if (((NumericUpDown)sender).Text != "")
             {
                 FormDevice device1 = (FormDevice)listBoxDevices.SelectedItem;
                 FormDevice device2 = (FormDevice)listBoxDeviceConnections.SelectedItem;
 
-                device1.changeTransferTime(device2, int.Parse(((TextBox)sender).Text));
+                device1.changeTransferTime(device2, (int) ((NumericUpDown)sender).Value);
             }
         }
 
@@ -236,33 +236,33 @@ namespace semestralka_routing_simulation
 
             if (((CheckBox)sender).Checked)
             {
-                textBoxDeviceTimeProcessFirewall.Enabled = true;
+                numericUpDownDeviceTimeProcessFirewall.Enabled = true;
                 device.firewall = true;
-                textBoxDeviceTimeProcessFirewall.Text = device.firewallTimeToProcess.ToString();
+                numericUpDownDeviceTimeProcessFirewall.Text = device.firewallTimeToProcess.ToString();
             }
             else
             {
-                textBoxDeviceTimeProcessFirewall.Enabled = false;
+                numericUpDownDeviceTimeProcessFirewall.Enabled = false;
                 device.firewall = false;
-                textBoxDeviceTimeProcessFirewall.Text = "";
+                numericUpDownDeviceTimeProcessFirewall.Text = "";
+            }
+        }
+        
+        private void numericUpDownDeviceTimeProcessFirewall_ValueChanged(object sender, EventArgs e)
+        {
+            if (((NumericUpDown)sender).Text != "")
+            {
+                FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
+                device.firewallTimeToProcess = (int) ((NumericUpDown)sender).Value;
             }
         }
 
-        private void textBox3_TextChanged(object sender, EventArgs e)
+        private void numericUpDownDeviceTimeProcess_ValueChanged(object sender, EventArgs e)
         {
-            if (((TextBox)sender).Text != "")
+            if (((NumericUpDown)sender).Text != "")
             {
                 FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
-                device.firewallTimeToProcess = int.Parse(((TextBox)sender).Text);
-            }
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            if (((TextBox)sender).Text != "")
-            {
-                FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
-                device.timeToProcess = int.Parse(((TextBox)sender).Text);
+                device.timeToProcess = (int)((NumericUpDown)sender).Value ;
             }
         }
     }

@@ -34,16 +34,16 @@
             this.buttonAdd = new System.Windows.Forms.Button();
             this.buttonRemove = new System.Windows.Forms.Button();
             this.groupBoxDeviceProperties = new System.Windows.Forms.GroupBox();
+            this.numericUpDownDeviceTimeProcess = new System.Windows.Forms.NumericUpDown();
             this.groupBoxDeviceFirewall = new System.Windows.Forms.GroupBox();
-            this.textBoxDeviceTimeProcessFirewall = new System.Windows.Forms.TextBox();
+            this.numericUpDownDeviceTimeProcessFirewall = new System.Windows.Forms.NumericUpDown();
             this.checkBoxDeviceFirewall = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBoxDeviceTimeProcess = new System.Windows.Forms.TextBox();
             this.comboBoxDeviceType = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBoxDeviceConnections = new System.Windows.Forms.GroupBox();
+            this.numericUpDownDeviceTransferTime = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBoxDeviceTransferTime = new System.Windows.Forms.TextBox();
             this.checkBoxDeviceConnected = new System.Windows.Forms.CheckBox();
             this.listBoxDeviceConnections = new System.Windows.Forms.ListBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -54,12 +54,11 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.groupBoxSimulationProperties = new System.Windows.Forms.GroupBox();
-            this.textBoxRandomSeed = new System.Windows.Forms.TextBox();
-            this.textBoxTimeout = new System.Windows.Forms.TextBox();
-            this.textBoxProbabilityMalicious = new System.Windows.Forms.TextBox();
-            this.textBoxNumberAttempts = new System.Windows.Forms.TextBox();
-            this.textBoxTotalPackets = new System.Windows.Forms.TextBox();
-            this.textBoxSendUntil = new System.Windows.Forms.TextBox();
+            this.numericUpDownTimeout = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownNumberAttempts = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownProbabilityMalicious = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownSendUntil = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownTotalPackets = new System.Windows.Forms.NumericUpDown();
             this.panelDistribution = new System.Windows.Forms.Panel();
             this.radioButtonDistributionGaussian = new System.Windows.Forms.RadioButton();
             this.radioButtonDistributionUniform = new System.Windows.Forms.RadioButton();
@@ -78,13 +77,23 @@
             this.textBoxSimulationLength = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSentMalicious = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSent = new System.Windows.Forms.TextBox();
+            this.numericUpDownRandomSeed = new System.Windows.Forms.NumericUpDown();
             this.groupBoxDevices.SuspendLayout();
             this.groupBoxDeviceProperties.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcess)).BeginInit();
             this.groupBoxDeviceFirewall.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcessFirewall)).BeginInit();
             this.groupBoxDeviceConnections.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTransferTime)).BeginInit();
             this.groupBoxSimulationProperties.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTimeout)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumberAttempts)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownProbabilityMalicious)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSendUntil)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTotalPackets)).BeginInit();
             this.panelDistribution.SuspendLayout();
             this.groupBoxResults.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRandomSeed)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -141,8 +150,8 @@
             // 
             // groupBoxDeviceProperties
             // 
+            this.groupBoxDeviceProperties.Controls.Add(this.numericUpDownDeviceTimeProcess);
             this.groupBoxDeviceProperties.Controls.Add(this.groupBoxDeviceFirewall);
-            this.groupBoxDeviceProperties.Controls.Add(this.textBoxDeviceTimeProcess);
             this.groupBoxDeviceProperties.Controls.Add(this.comboBoxDeviceType);
             this.groupBoxDeviceProperties.Controls.Add(this.label2);
             this.groupBoxDeviceProperties.Controls.Add(this.groupBoxDeviceConnections);
@@ -154,9 +163,17 @@
             this.groupBoxDeviceProperties.Text = "Device Properties";
             this.groupBoxDeviceProperties.Visible = false;
             // 
+            // numericUpDownDeviceTimeProcess
+            // 
+            this.numericUpDownDeviceTimeProcess.Location = new System.Drawing.Point(364, 58);
+            this.numericUpDownDeviceTimeProcess.Name = "numericUpDownDeviceTimeProcess";
+            this.numericUpDownDeviceTimeProcess.Size = new System.Drawing.Size(105, 23);
+            this.numericUpDownDeviceTimeProcess.TabIndex = 17;
+            this.numericUpDownDeviceTimeProcess.ValueChanged += new System.EventHandler(this.numericUpDownDeviceTimeProcess_ValueChanged);
+            // 
             // groupBoxDeviceFirewall
             // 
-            this.groupBoxDeviceFirewall.Controls.Add(this.textBoxDeviceTimeProcessFirewall);
+            this.groupBoxDeviceFirewall.Controls.Add(this.numericUpDownDeviceTimeProcessFirewall);
             this.groupBoxDeviceFirewall.Controls.Add(this.checkBoxDeviceFirewall);
             this.groupBoxDeviceFirewall.Controls.Add(this.label3);
             this.groupBoxDeviceFirewall.Location = new System.Drawing.Point(355, 87);
@@ -166,14 +183,13 @@
             this.groupBoxDeviceFirewall.TabStop = false;
             this.groupBoxDeviceFirewall.Text = "Firewall";
             // 
-            // textBoxDeviceTimeProcessFirewall
+            // numericUpDownDeviceTimeProcessFirewall
             // 
-            this.textBoxDeviceTimeProcessFirewall.Location = new System.Drawing.Point(9, 40);
-            this.textBoxDeviceTimeProcessFirewall.Name = "textBoxDeviceTimeProcessFirewall";
-            this.textBoxDeviceTimeProcessFirewall.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBoxDeviceTimeProcessFirewall.Size = new System.Drawing.Size(103, 23);
-            this.textBoxDeviceTimeProcessFirewall.TabIndex = 9;
-            this.textBoxDeviceTimeProcessFirewall.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+            this.numericUpDownDeviceTimeProcessFirewall.Location = new System.Drawing.Point(9, 41);
+            this.numericUpDownDeviceTimeProcessFirewall.Name = "numericUpDownDeviceTimeProcessFirewall";
+            this.numericUpDownDeviceTimeProcessFirewall.Size = new System.Drawing.Size(105, 23);
+            this.numericUpDownDeviceTimeProcessFirewall.TabIndex = 17;
+            this.numericUpDownDeviceTimeProcessFirewall.ValueChanged += new System.EventHandler(this.numericUpDownDeviceTimeProcessFirewall_ValueChanged);
             // 
             // checkBoxDeviceFirewall
             // 
@@ -195,15 +211,6 @@
             this.label3.Size = new System.Drawing.Size(128, 15);
             this.label3.TabIndex = 8;
             this.label3.Text = "Time to process packet";
-            // 
-            // textBoxDeviceTimeProcess
-            // 
-            this.textBoxDeviceTimeProcess.Location = new System.Drawing.Point(364, 57);
-            this.textBoxDeviceTimeProcess.Name = "textBoxDeviceTimeProcess";
-            this.textBoxDeviceTimeProcess.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBoxDeviceTimeProcess.Size = new System.Drawing.Size(103, 23);
-            this.textBoxDeviceTimeProcess.TabIndex = 9;
-            this.textBoxDeviceTimeProcess.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // comboBoxDeviceType
             // 
@@ -229,8 +236,8 @@
             // 
             // groupBoxDeviceConnections
             // 
+            this.groupBoxDeviceConnections.Controls.Add(this.numericUpDownDeviceTransferTime);
             this.groupBoxDeviceConnections.Controls.Add(this.label1);
-            this.groupBoxDeviceConnections.Controls.Add(this.textBoxDeviceTransferTime);
             this.groupBoxDeviceConnections.Controls.Add(this.checkBoxDeviceConnected);
             this.groupBoxDeviceConnections.Controls.Add(this.listBoxDeviceConnections);
             this.groupBoxDeviceConnections.Location = new System.Drawing.Point(22, 22);
@@ -240,6 +247,14 @@
             this.groupBoxDeviceConnections.TabStop = false;
             this.groupBoxDeviceConnections.Text = "Connections";
             // 
+            // numericUpDownDeviceTransferTime
+            // 
+            this.numericUpDownDeviceTransferTime.Location = new System.Drawing.Point(155, 55);
+            this.numericUpDownDeviceTransferTime.Name = "numericUpDownDeviceTransferTime";
+            this.numericUpDownDeviceTransferTime.Size = new System.Drawing.Size(75, 23);
+            this.numericUpDownDeviceTransferTime.TabIndex = 26;
+            this.numericUpDownDeviceTransferTime.ValueChanged += new System.EventHandler(this.numericUpDownDeviceTransferTime_ValueChanged);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -248,16 +263,6 @@
             this.label1.Size = new System.Drawing.Size(80, 30);
             this.label1.TabIndex = 8;
             this.label1.Text = "Time to \r\ndeliver packet";
-            // 
-            // textBoxDeviceTransferTime
-            // 
-            this.textBoxDeviceTransferTime.Location = new System.Drawing.Point(160, 58);
-            this.textBoxDeviceTransferTime.Name = "textBoxDeviceTransferTime";
-            this.textBoxDeviceTransferTime.Size = new System.Drawing.Size(66, 23);
-            this.textBoxDeviceTransferTime.TabIndex = 8;
-            this.textBoxDeviceTransferTime.Text = "5";
-            this.textBoxDeviceTransferTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBoxDeviceTransferTime.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // checkBoxDeviceConnected
             // 
@@ -346,15 +351,15 @@
             // 
             // groupBoxSimulationProperties
             // 
-            this.groupBoxSimulationProperties.Controls.Add(this.textBoxRandomSeed);
-            this.groupBoxSimulationProperties.Controls.Add(this.textBoxTimeout);
-            this.groupBoxSimulationProperties.Controls.Add(this.textBoxProbabilityMalicious);
+            this.groupBoxSimulationProperties.Controls.Add(this.numericUpDownRandomSeed);
+            this.groupBoxSimulationProperties.Controls.Add(this.numericUpDownTimeout);
+            this.groupBoxSimulationProperties.Controls.Add(this.numericUpDownNumberAttempts);
+            this.groupBoxSimulationProperties.Controls.Add(this.numericUpDownProbabilityMalicious);
+            this.groupBoxSimulationProperties.Controls.Add(this.numericUpDownSendUntil);
+            this.groupBoxSimulationProperties.Controls.Add(this.numericUpDownTotalPackets);
             this.groupBoxSimulationProperties.Controls.Add(this.label4);
-            this.groupBoxSimulationProperties.Controls.Add(this.textBoxNumberAttempts);
             this.groupBoxSimulationProperties.Controls.Add(this.label9);
             this.groupBoxSimulationProperties.Controls.Add(this.label10);
-            this.groupBoxSimulationProperties.Controls.Add(this.textBoxTotalPackets);
-            this.groupBoxSimulationProperties.Controls.Add(this.textBoxSendUntil);
             this.groupBoxSimulationProperties.Controls.Add(this.label7);
             this.groupBoxSimulationProperties.Controls.Add(this.label8);
             this.groupBoxSimulationProperties.Controls.Add(this.label5);
@@ -367,47 +372,40 @@
             this.groupBoxSimulationProperties.TabStop = false;
             this.groupBoxSimulationProperties.Text = "Simulation parameters";
             // 
-            // textBoxRandomSeed
+            // numericUpDownTimeout
             // 
-            this.textBoxRandomSeed.Location = new System.Drawing.Point(663, 116);
-            this.textBoxRandomSeed.Name = "textBoxRandomSeed";
-            this.textBoxRandomSeed.Size = new System.Drawing.Size(154, 23);
-            this.textBoxRandomSeed.TabIndex = 19;
+            this.numericUpDownTimeout.Location = new System.Drawing.Point(663, 87);
+            this.numericUpDownTimeout.Name = "numericUpDownTimeout";
+            this.numericUpDownTimeout.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownTimeout.TabIndex = 17;
             // 
-            // textBoxTimeout
+            // numericUpDownNumberAttempts
             // 
-            this.textBoxTimeout.Location = new System.Drawing.Point(663, 87);
-            this.textBoxTimeout.Name = "textBoxTimeout";
-            this.textBoxTimeout.Size = new System.Drawing.Size(154, 23);
-            this.textBoxTimeout.TabIndex = 20;
+            this.numericUpDownNumberAttempts.Location = new System.Drawing.Point(663, 58);
+            this.numericUpDownNumberAttempts.Name = "numericUpDownNumberAttempts";
+            this.numericUpDownNumberAttempts.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownNumberAttempts.TabIndex = 17;
             // 
-            // textBoxProbabilityMalicious
+            // numericUpDownProbabilityMalicious
             // 
-            this.textBoxProbabilityMalicious.Location = new System.Drawing.Point(663, 29);
-            this.textBoxProbabilityMalicious.Name = "textBoxProbabilityMalicious";
-            this.textBoxProbabilityMalicious.Size = new System.Drawing.Size(154, 23);
-            this.textBoxProbabilityMalicious.TabIndex = 21;
+            this.numericUpDownProbabilityMalicious.Location = new System.Drawing.Point(663, 30);
+            this.numericUpDownProbabilityMalicious.Name = "numericUpDownProbabilityMalicious";
+            this.numericUpDownProbabilityMalicious.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownProbabilityMalicious.TabIndex = 22;
             // 
-            // textBoxNumberAttempts
+            // numericUpDownSendUntil
             // 
-            this.textBoxNumberAttempts.Location = new System.Drawing.Point(663, 58);
-            this.textBoxNumberAttempts.Name = "textBoxNumberAttempts";
-            this.textBoxNumberAttempts.Size = new System.Drawing.Size(154, 23);
-            this.textBoxNumberAttempts.TabIndex = 17;
+            this.numericUpDownSendUntil.Location = new System.Drawing.Point(162, 58);
+            this.numericUpDownSendUntil.Name = "numericUpDownSendUntil";
+            this.numericUpDownSendUntil.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownSendUntil.TabIndex = 17;
             // 
-            // textBoxTotalPackets
+            // numericUpDownTotalPackets
             // 
-            this.textBoxTotalPackets.Location = new System.Drawing.Point(162, 29);
-            this.textBoxTotalPackets.Name = "textBoxTotalPackets";
-            this.textBoxTotalPackets.Size = new System.Drawing.Size(154, 23);
-            this.textBoxTotalPackets.TabIndex = 18;
-            // 
-            // textBoxSendUntil
-            // 
-            this.textBoxSendUntil.Location = new System.Drawing.Point(162, 57);
-            this.textBoxSendUntil.Name = "textBoxSendUntil";
-            this.textBoxSendUntil.Size = new System.Drawing.Size(154, 23);
-            this.textBoxSendUntil.TabIndex = 16;
+            this.numericUpDownTotalPackets.Location = new System.Drawing.Point(162, 30);
+            this.numericUpDownTotalPackets.Name = "numericUpDownTotalPackets";
+            this.numericUpDownTotalPackets.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownTotalPackets.TabIndex = 17;
             // 
             // panelDistribution
             // 
@@ -590,6 +588,13 @@
             this.textBoxPacketsSent.TabIndex = 19;
             this.textBoxPacketsSent.Text = "0";
             // 
+            // numericUpDownRandomSeed
+            // 
+            this.numericUpDownRandomSeed.Location = new System.Drawing.Point(663, 116);
+            this.numericUpDownRandomSeed.Name = "numericUpDownRandomSeed";
+            this.numericUpDownRandomSeed.Size = new System.Drawing.Size(154, 23);
+            this.numericUpDownRandomSeed.TabIndex = 17;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -607,16 +612,25 @@
             this.groupBoxDevices.ResumeLayout(false);
             this.groupBoxDeviceProperties.ResumeLayout(false);
             this.groupBoxDeviceProperties.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcess)).EndInit();
             this.groupBoxDeviceFirewall.ResumeLayout(false);
             this.groupBoxDeviceFirewall.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcessFirewall)).EndInit();
             this.groupBoxDeviceConnections.ResumeLayout(false);
             this.groupBoxDeviceConnections.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTransferTime)).EndInit();
             this.groupBoxSimulationProperties.ResumeLayout(false);
             this.groupBoxSimulationProperties.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTimeout)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumberAttempts)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownProbabilityMalicious)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSendUntil)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTotalPackets)).EndInit();
             this.panelDistribution.ResumeLayout(false);
             this.panelDistribution.PerformLayout();
             this.groupBoxResults.ResumeLayout(false);
             this.groupBoxResults.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownRandomSeed)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -632,14 +646,11 @@
         private System.Windows.Forms.GroupBox groupBoxDeviceConnections;
         private System.Windows.Forms.ListBox listBoxDeviceConnections;
         private System.Windows.Forms.CheckBox checkBoxDeviceConnected;
-        private System.Windows.Forms.TextBox textBoxDeviceTransferTime;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox comboBoxDeviceType;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBoxDeviceTimeProcess;
         private System.Windows.Forms.CheckBox checkBoxDeviceFirewall;
         private System.Windows.Forms.GroupBox groupBoxDeviceFirewall;
-        private System.Windows.Forms.TextBox textBoxDeviceTimeProcessFirewall;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
@@ -649,12 +660,6 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.GroupBox groupBoxSimulationProperties;
-        private System.Windows.Forms.TextBox textBoxRandomSeed;
-        private System.Windows.Forms.TextBox textBoxTimeout;
-        private System.Windows.Forms.TextBox textBoxProbabilityMalicious;
-        private System.Windows.Forms.TextBox textBoxNumberAttempts;
-        private System.Windows.Forms.TextBox textBoxTotalPackets;
-        private System.Windows.Forms.TextBox textBoxSendUntil;
         private System.Windows.Forms.Panel panelDistribution;
         private System.Windows.Forms.RadioButton radioButtonDistributionGaussian;
         private System.Windows.Forms.RadioButton radioButtonDistributionUniform;
@@ -673,6 +678,15 @@
         private System.Windows.Forms.TextBox textBoxPacketsDeliveredMalicious;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.NumericUpDown numericUpDownDeviceTransferTime;
+        private System.Windows.Forms.NumericUpDown numericUpDownDeviceTimeProcess;
+        private System.Windows.Forms.NumericUpDown numericUpDownDeviceTimeProcessFirewall;
+        private System.Windows.Forms.NumericUpDown numericUpDownTotalPackets;
+        private System.Windows.Forms.NumericUpDown numericUpDownSendUntil;
+        private System.Windows.Forms.NumericUpDown numericUpDownProbabilityMalicious;
+        private System.Windows.Forms.NumericUpDown numericUpDownNumberAttempts;
+        private System.Windows.Forms.NumericUpDown numericUpDownTimeout;
+        private System.Windows.Forms.NumericUpDown numericUpDownRandomSeed;
     }
 }
 
