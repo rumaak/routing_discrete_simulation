@@ -107,7 +107,6 @@ namespace semestralka_routing_simulation
         }
     }
 
-    // All processes share the same ID pool, packets have their own ID pool
     abstract class Process
     {
         public int ID;
@@ -467,29 +466,75 @@ namespace semestralka_routing_simulation
         public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts, Statistics statistics)
         {
             time = 0;
-            routers = Simulation.getRouters();
-            computers = Simulation.getComputers();
-            firewalls = Simulation.getFirewalls(routers);
+            routers = new List<Router>();
+            computers = new List<Computer>();
+            firewalls = new List<Firewall>();
+            
+            // TODO initialize routing table
             routingTable = Simulation.getRouting();
+            
             this.scheduler = scheduler;
             this.timeout = timeout;
             this.timeoutAttempts = timeoutAttempts;
             this.statistics = statistics;
-
-            ulong totalPackets = 10;
-            ulong maxTime = 100;
-            double maliciousProbability = 0.2;
-            Simulation.generatePackets(computers, scheduler, totalPackets, maxTime, maliciousProbability, statistics, Distribution.DiscreteGaussian);
-
-            this.statistics.sentPackets = totalPackets;
         }
     }
     
     static class Simulation
     {
         public static int routingIndex = 0;
+        public static int linkIndex = 1;
+        public static int firewallIndex = 1;
         public static Dictionary<int, Device> routingIndexToDevice = new Dictionary<int, Device>(); 
         public static Dictionary<int, int> deviceIndexToRoutingIndex = new Dictionary<int, int>();
+
+        public static void extractDevices(Model model, ListBox devices)
+        {
+            foreach (FormDevice device in devices.Items)
+            {
+                if (device.deviceType == DeviceType.Computer)
+                {
+                    Computer computer = new Computer(device.ID, routingIndex);
+
+                    for (int i = 0; i < device.connections.Count; i++)
+                    {
+                        Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], computer);
+                        linkIndex += 1;
+                        computer.addLink(link);
+                    }
+
+                    model.computers.Add(computer);
+                    routingIndexToDevice.Add(routingIndex, computer);
+                    deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
+                    routingIndex += 1;
+                }
+                else
+                {
+                    Router router = new Router(device.ID, device.timeToProcess, routingIndex);
+
+                    for (int i = 0; i < device.connections.Count; i++)
+                    {
+                        Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], router);
+                        linkIndex += 1;
+                        router.addLink(link);
+                    }
+
+                    if (device.firewall)
+                    {
+                        Firewall firewall = new Firewall(firewallIndex, device.firewallTimeToProcess, router);
+                        firewallIndex += 1;
+                        model.firewalls.Add(firewall);
+                        router.setFirewall(firewall);
+                    }
+
+                    model.routers.Add(router);
+                    routingIndexToDevice.Add(routingIndex, router);
+                    deviceIndexToRoutingIndex.Add(router.ID, routingIndex);
+                    routingIndex += 1;
+                }
+            }
+        }
+
         public static List<Router> getRouters()
         {
             List<Router> routers = new List<Router>();
@@ -573,9 +618,10 @@ namespace semestralka_routing_simulation
             return (ulong)randNormal;
         }
  
-        public static void generatePackets(List<Computer> computers, Scheduler scheduler, ulong totalPackets, ulong maxTime, double maliciousProbability, Statistics statistics, Distribution distribution)
+        public static void generatePackets(List<Computer> computers, Scheduler scheduler, ulong totalPackets, ulong maxTime, double maliciousProbability, 
+            Statistics statistics, Distribution distribution, int randomSeed)
         {
-            Random rnd = new Random(123);
+            Random rnd = new Random(randomSeed);
 
             ulong i = 0;
             while (i < totalPackets)
@@ -584,6 +630,8 @@ namespace semestralka_routing_simulation
                 int to = rnd.Next(computers.Count);
                 ulong when = 0;
                 bool malicious = rnd.NextDouble() < maliciousProbability;
+
+                if (from == to) continue;
 
                 if (malicious)
                 {
@@ -598,8 +646,6 @@ namespace semestralka_routing_simulation
                 {
                     when = getNextGaussian(maxTime, rnd);
                 }
-
-                if (from == to) continue;
 
                 Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1, malicious);
                 computers[from].addPacketOut(packet);
@@ -623,19 +669,34 @@ namespace semestralka_routing_simulation
             return BitConverter.ToUInt64(buffer, 0) % (maxValue + 1);
         }
 
-        public static void RunSimulation()
+        public static void RunSimulation(ListBox devices, NumericUpDown totalPackets, NumericUpDown maxTime, RadioButton distributionUniform, 
+            NumericUpDown probabilityMalicious, NumericUpDown timeoutAttempts, NumericUpDown timeout, NumericUpDown randomSeed)
         {
             Debug.WriteLine("Simulation started");
 
-            ulong timeout = 10;
-            // How many times PC tries to resend a packet if timeout occurs
-            int timeoutAttempts = 3;
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
-            Model model = new Model(scheduler, timeout, timeoutAttempts, statistics);
+            Model model = new Model(scheduler, (ulong)timeout.Value, (int)timeoutAttempts.Value, statistics);
+
+            Distribution distribution;
+            if (distributionUniform.Checked)
+            {
+                distribution = Distribution.Uniform;
+            }
+            else
+            {
+                distribution = Distribution.DiscreteGaussian;
+            }
+
+            statistics.sentPackets = (ulong)totalPackets.Value;
+            extractDevices(model, devices);
+            generatePackets(model.computers, scheduler, (ulong)totalPackets.Value, (ulong)maxTime.Value, (double)probabilityMalicious.Value, 
+                statistics, distribution, (int)randomSeed.Value);
+
             SimulationEvent simEvent = scheduler.GetFirst();
             while (simEvent != null)
             {
+                // TODO update GUI values
                 model.time = simEvent.time;
                 simEvent.execute(model);
                 simEvent = scheduler.GetFirst();

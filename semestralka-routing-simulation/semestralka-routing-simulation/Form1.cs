@@ -29,7 +29,8 @@ namespace semestralka_routing_simulation
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Simulation.RunSimulation();
+            Simulation.RunSimulation(listBoxDevices, numericUpDownTotalPackets, numericUpDownSendUntil, radioButtonDistributionUniform, 
+                numericUpDownProbabilityMalicious, numericUpDownNumberAttempts, numericUpDownTimeout, numericUpDownRandomSeed);
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
