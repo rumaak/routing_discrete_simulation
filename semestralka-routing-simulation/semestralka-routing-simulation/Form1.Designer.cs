@@ -28,24 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.buttonStart = new System.Windows.Forms.Button();
+            this.listBoxDevices = new System.Windows.Forms.ListBox();
+            this.groupBoxDevices = new System.Windows.Forms.GroupBox();
+            this.buttonAdd = new System.Windows.Forms.Button();
+            this.buttonRemove = new System.Windows.Forms.Button();
+            this.groupBoxDeviceProperties = new System.Windows.Forms.GroupBox();
+            this.groupBoxDeviceFirewall = new System.Windows.Forms.GroupBox();
+            this.textBoxDeviceTimeProcessFirewall = new System.Windows.Forms.TextBox();
+            this.checkBoxDeviceFirewall = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.textBoxDeviceTimeProcess = new System.Windows.Forms.TextBox();
+            this.comboBoxDeviceType = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBoxDeviceConnections = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.textBoxDeviceTransferTime = new System.Windows.Forms.TextBox();
+            this.checkBoxDeviceConnected = new System.Windows.Forms.CheckBox();
+            this.listBoxDeviceConnections = new System.Windows.Forms.ListBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -53,139 +53,139 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.textBox8 = new System.Windows.Forms.TextBox();
-            this.textBox9 = new System.Windows.Forms.TextBox();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.textBox16 = new System.Windows.Forms.TextBox();
+            this.groupBoxSimulationProperties = new System.Windows.Forms.GroupBox();
+            this.textBoxRandomSeed = new System.Windows.Forms.TextBox();
+            this.textBoxTimeout = new System.Windows.Forms.TextBox();
+            this.textBoxProbabilityMalicious = new System.Windows.Forms.TextBox();
+            this.textBoxNumberAttempts = new System.Windows.Forms.TextBox();
+            this.textBoxTotalPackets = new System.Windows.Forms.TextBox();
+            this.textBoxSendUntil = new System.Windows.Forms.TextBox();
+            this.panelDistribution = new System.Windows.Forms.Panel();
+            this.radioButtonDistributionGaussian = new System.Windows.Forms.RadioButton();
+            this.radioButtonDistributionUniform = new System.Windows.Forms.RadioButton();
+            this.groupBoxResults = new System.Windows.Forms.GroupBox();
+            this.textBoxPacketsDeliveredMalicious = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
-            this.textBox14 = new System.Windows.Forms.TextBox();
+            this.textBoxPacketsDelivered = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
-            this.textBox15 = new System.Windows.Forms.TextBox();
+            this.textBoxAverageAttempts = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
-            this.textBox13 = new System.Windows.Forms.TextBox();
-            this.textBox10 = new System.Windows.Forms.TextBox();
-            this.textBox11 = new System.Windows.Forms.TextBox();
-            this.textBox12 = new System.Windows.Forms.TextBox();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.groupBox4.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            this.groupBox5.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.groupBox6.SuspendLayout();
+            this.textBoxAverageTimeDelivered = new System.Windows.Forms.TextBox();
+            this.textBoxSimulationLength = new System.Windows.Forms.TextBox();
+            this.textBoxPacketsSentMalicious = new System.Windows.Forms.TextBox();
+            this.textBoxPacketsSent = new System.Windows.Forms.TextBox();
+            this.groupBoxDevices.SuspendLayout();
+            this.groupBoxDeviceProperties.SuspendLayout();
+            this.groupBoxDeviceFirewall.SuspendLayout();
+            this.groupBoxDeviceConnections.SuspendLayout();
+            this.groupBoxSimulationProperties.SuspendLayout();
+            this.panelDistribution.SuspendLayout();
+            this.groupBoxResults.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // buttonStart
             // 
-            this.button1.Location = new System.Drawing.Point(419, 413);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Start";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonStart.Location = new System.Drawing.Point(419, 413);
+            this.buttonStart.Name = "buttonStart";
+            this.buttonStart.Size = new System.Drawing.Size(75, 23);
+            this.buttonStart.TabIndex = 0;
+            this.buttonStart.Text = "Start";
+            this.buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Click += new System.EventHandler(this.button1_Click);
             // 
-            // listBox1
+            // listBoxDevices
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 15;
-            this.listBox1.Location = new System.Drawing.Point(30, 22);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.ScrollAlwaysVisible = true;
-            this.listBox1.Size = new System.Drawing.Size(124, 169);
-            this.listBox1.TabIndex = 2;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.listBoxDevices.FormattingEnabled = true;
+            this.listBoxDevices.ItemHeight = 15;
+            this.listBoxDevices.Location = new System.Drawing.Point(30, 22);
+            this.listBoxDevices.Name = "listBoxDevices";
+            this.listBoxDevices.ScrollAlwaysVisible = true;
+            this.listBoxDevices.Size = new System.Drawing.Size(124, 169);
+            this.listBoxDevices.TabIndex = 2;
+            this.listBoxDevices.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
-            // groupBox1
+            // groupBoxDevices
             // 
-            this.groupBox1.Controls.Add(this.listBox1);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(180, 211);
-            this.groupBox1.TabIndex = 3;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Devices";
+            this.groupBoxDevices.Controls.Add(this.listBoxDevices);
+            this.groupBoxDevices.Location = new System.Drawing.Point(12, 12);
+            this.groupBoxDevices.Name = "groupBoxDevices";
+            this.groupBoxDevices.Size = new System.Drawing.Size(180, 211);
+            this.groupBoxDevices.TabIndex = 3;
+            this.groupBoxDevices.TabStop = false;
+            this.groupBoxDevices.Text = "Devices";
             // 
-            // button2
+            // buttonAdd
             // 
-            this.button2.Location = new System.Drawing.Point(209, 21);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(81, 30);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "Add";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonAdd.Location = new System.Drawing.Point(209, 21);
+            this.buttonAdd.Name = "buttonAdd";
+            this.buttonAdd.Size = new System.Drawing.Size(81, 30);
+            this.buttonAdd.TabIndex = 4;
+            this.buttonAdd.Text = "Add";
+            this.buttonAdd.UseVisualStyleBackColor = true;
+            this.buttonAdd.Click += new System.EventHandler(this.button2_Click);
             // 
-            // button3
+            // buttonRemove
             // 
-            this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point(209, 57);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(81, 30);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "Remove";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.buttonRemove.Enabled = false;
+            this.buttonRemove.Location = new System.Drawing.Point(209, 57);
+            this.buttonRemove.Name = "buttonRemove";
+            this.buttonRemove.Size = new System.Drawing.Size(81, 30);
+            this.buttonRemove.TabIndex = 5;
+            this.buttonRemove.Text = "Remove";
+            this.buttonRemove.UseVisualStyleBackColor = true;
+            this.buttonRemove.Click += new System.EventHandler(this.button3_Click);
             // 
-            // groupBox2
+            // groupBoxDeviceProperties
             // 
-            this.groupBox2.Controls.Add(this.groupBox4);
-            this.groupBox2.Controls.Add(this.textBox2);
-            this.groupBox2.Controls.Add(this.comboBox1);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.groupBox3);
-            this.groupBox2.Location = new System.Drawing.Point(323, 12);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(628, 211);
-            this.groupBox2.TabIndex = 7;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Device Properties";
-            this.groupBox2.Visible = false;
+            this.groupBoxDeviceProperties.Controls.Add(this.groupBoxDeviceFirewall);
+            this.groupBoxDeviceProperties.Controls.Add(this.textBoxDeviceTimeProcess);
+            this.groupBoxDeviceProperties.Controls.Add(this.comboBoxDeviceType);
+            this.groupBoxDeviceProperties.Controls.Add(this.label2);
+            this.groupBoxDeviceProperties.Controls.Add(this.groupBoxDeviceConnections);
+            this.groupBoxDeviceProperties.Location = new System.Drawing.Point(323, 12);
+            this.groupBoxDeviceProperties.Name = "groupBoxDeviceProperties";
+            this.groupBoxDeviceProperties.Size = new System.Drawing.Size(628, 211);
+            this.groupBoxDeviceProperties.TabIndex = 7;
+            this.groupBoxDeviceProperties.TabStop = false;
+            this.groupBoxDeviceProperties.Text = "Device Properties";
+            this.groupBoxDeviceProperties.Visible = false;
             // 
-            // groupBox4
+            // groupBoxDeviceFirewall
             // 
-            this.groupBox4.Controls.Add(this.textBox3);
-            this.groupBox4.Controls.Add(this.checkBox2);
-            this.groupBox4.Controls.Add(this.label3);
-            this.groupBox4.Location = new System.Drawing.Point(355, 87);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(255, 103);
-            this.groupBox4.TabIndex = 10;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Firewall";
+            this.groupBoxDeviceFirewall.Controls.Add(this.textBoxDeviceTimeProcessFirewall);
+            this.groupBoxDeviceFirewall.Controls.Add(this.checkBoxDeviceFirewall);
+            this.groupBoxDeviceFirewall.Controls.Add(this.label3);
+            this.groupBoxDeviceFirewall.Location = new System.Drawing.Point(355, 87);
+            this.groupBoxDeviceFirewall.Name = "groupBoxDeviceFirewall";
+            this.groupBoxDeviceFirewall.Size = new System.Drawing.Size(255, 103);
+            this.groupBoxDeviceFirewall.TabIndex = 10;
+            this.groupBoxDeviceFirewall.TabStop = false;
+            this.groupBoxDeviceFirewall.Text = "Firewall";
             // 
-            // textBox3
+            // textBoxDeviceTimeProcessFirewall
             // 
-            this.textBox3.Location = new System.Drawing.Point(9, 40);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBox3.Size = new System.Drawing.Size(103, 23);
-            this.textBox3.TabIndex = 9;
-            this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+            this.textBoxDeviceTimeProcessFirewall.Location = new System.Drawing.Point(9, 40);
+            this.textBoxDeviceTimeProcessFirewall.Name = "textBoxDeviceTimeProcessFirewall";
+            this.textBoxDeviceTimeProcessFirewall.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.textBoxDeviceTimeProcessFirewall.Size = new System.Drawing.Size(103, 23);
+            this.textBoxDeviceTimeProcessFirewall.TabIndex = 9;
+            this.textBoxDeviceTimeProcessFirewall.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
             // 
-            // checkBox2
+            // checkBoxDeviceFirewall
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.checkBox2.Location = new System.Drawing.Point(100, 15);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(66, 19);
-            this.checkBox2.TabIndex = 8;
-            this.checkBox2.Text = "Firewall";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            this.checkBox2.Click += new System.EventHandler(this.checkBox2_Click);
+            this.checkBoxDeviceFirewall.AutoSize = true;
+            this.checkBoxDeviceFirewall.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.checkBoxDeviceFirewall.Location = new System.Drawing.Point(100, 15);
+            this.checkBoxDeviceFirewall.Name = "checkBoxDeviceFirewall";
+            this.checkBoxDeviceFirewall.Size = new System.Drawing.Size(66, 19);
+            this.checkBoxDeviceFirewall.TabIndex = 8;
+            this.checkBoxDeviceFirewall.Text = "Firewall";
+            this.checkBoxDeviceFirewall.UseVisualStyleBackColor = true;
+            this.checkBoxDeviceFirewall.Click += new System.EventHandler(this.checkBox2_Click);
             // 
             // label3
             // 
@@ -196,27 +196,27 @@
             this.label3.TabIndex = 8;
             this.label3.Text = "Time to process packet";
             // 
-            // textBox2
+            // textBoxDeviceTimeProcess
             // 
-            this.textBox2.Location = new System.Drawing.Point(364, 57);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBox2.Size = new System.Drawing.Size(103, 23);
-            this.textBox2.TabIndex = 9;
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            this.textBoxDeviceTimeProcess.Location = new System.Drawing.Point(364, 57);
+            this.textBoxDeviceTimeProcess.Name = "textBoxDeviceTimeProcess";
+            this.textBoxDeviceTimeProcess.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.textBoxDeviceTimeProcess.Size = new System.Drawing.Size(103, 23);
+            this.textBoxDeviceTimeProcess.TabIndex = 9;
+            this.textBoxDeviceTimeProcess.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
-            // comboBox1
+            // comboBoxDeviceType
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.comboBoxDeviceType.FormattingEnabled = true;
+            this.comboBoxDeviceType.Items.AddRange(new object[] {
             "Router",
             "Computer"});
-            this.comboBox1.Location = new System.Drawing.Point(364, 22);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.comboBox1.Size = new System.Drawing.Size(103, 23);
-            this.comboBox1.TabIndex = 8;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.comboBoxDeviceType.Location = new System.Drawing.Point(364, 22);
+            this.comboBoxDeviceType.Name = "comboBoxDeviceType";
+            this.comboBoxDeviceType.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.comboBoxDeviceType.Size = new System.Drawing.Size(103, 23);
+            this.comboBoxDeviceType.TabIndex = 8;
+            this.comboBoxDeviceType.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -227,18 +227,18 @@
             this.label2.TabIndex = 8;
             this.label2.Text = "Time to process packet";
             // 
-            // groupBox3
+            // groupBoxDeviceConnections
             // 
-            this.groupBox3.Controls.Add(this.label1);
-            this.groupBox3.Controls.Add(this.textBox1);
-            this.groupBox3.Controls.Add(this.checkBox1);
-            this.groupBox3.Controls.Add(this.listBox2);
-            this.groupBox3.Location = new System.Drawing.Point(22, 22);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(322, 169);
-            this.groupBox3.TabIndex = 8;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Connections";
+            this.groupBoxDeviceConnections.Controls.Add(this.label1);
+            this.groupBoxDeviceConnections.Controls.Add(this.textBoxDeviceTransferTime);
+            this.groupBoxDeviceConnections.Controls.Add(this.checkBoxDeviceConnected);
+            this.groupBoxDeviceConnections.Controls.Add(this.listBoxDeviceConnections);
+            this.groupBoxDeviceConnections.Location = new System.Drawing.Point(22, 22);
+            this.groupBoxDeviceConnections.Name = "groupBoxDeviceConnections";
+            this.groupBoxDeviceConnections.Size = new System.Drawing.Size(322, 169);
+            this.groupBoxDeviceConnections.TabIndex = 8;
+            this.groupBoxDeviceConnections.TabStop = false;
+            this.groupBoxDeviceConnections.Text = "Connections";
             // 
             // label1
             // 
@@ -249,37 +249,37 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "Time to \r\ndeliver packet";
             // 
-            // textBox1
+            // textBoxDeviceTransferTime
             // 
-            this.textBox1.Location = new System.Drawing.Point(160, 58);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(66, 23);
-            this.textBox1.TabIndex = 8;
-            this.textBox1.Text = "5";
-            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.textBoxDeviceTransferTime.Location = new System.Drawing.Point(160, 58);
+            this.textBoxDeviceTransferTime.Name = "textBoxDeviceTransferTime";
+            this.textBoxDeviceTransferTime.Size = new System.Drawing.Size(66, 23);
+            this.textBoxDeviceTransferTime.TabIndex = 8;
+            this.textBoxDeviceTransferTime.Text = "5";
+            this.textBoxDeviceTransferTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxDeviceTransferTime.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
-            // checkBox1
+            // checkBoxDeviceConnected
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(214, 30);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(84, 19);
-            this.checkBox1.TabIndex = 9;
-            this.checkBox1.Text = "Connected";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.Click += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.checkBoxDeviceConnected.AutoSize = true;
+            this.checkBoxDeviceConnected.Location = new System.Drawing.Point(214, 30);
+            this.checkBoxDeviceConnected.Name = "checkBoxDeviceConnected";
+            this.checkBoxDeviceConnected.Size = new System.Drawing.Size(84, 19);
+            this.checkBoxDeviceConnected.TabIndex = 9;
+            this.checkBoxDeviceConnected.Text = "Connected";
+            this.checkBoxDeviceConnected.UseVisualStyleBackColor = true;
+            this.checkBoxDeviceConnected.Click += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // listBox2
+            // listBoxDeviceConnections
             // 
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.ItemHeight = 15;
-            this.listBox2.Location = new System.Drawing.Point(15, 22);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.ScrollAlwaysVisible = true;
-            this.listBox2.Size = new System.Drawing.Size(120, 124);
-            this.listBox2.TabIndex = 8;
-            this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
+            this.listBoxDeviceConnections.FormattingEnabled = true;
+            this.listBoxDeviceConnections.ItemHeight = 15;
+            this.listBoxDeviceConnections.Location = new System.Drawing.Point(15, 22);
+            this.listBoxDeviceConnections.Name = "listBoxDeviceConnections";
+            this.listBoxDeviceConnections.ScrollAlwaysVisible = true;
+            this.listBoxDeviceConnections.Size = new System.Drawing.Size(120, 124);
+            this.listBoxDeviceConnections.TabIndex = 8;
+            this.listBoxDeviceConnections.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -344,133 +344,133 @@
             this.label10.TabIndex = 14;
             this.label10.Text = "Packet distribution";
             // 
-            // groupBox5
+            // groupBoxSimulationProperties
             // 
-            this.groupBox5.Controls.Add(this.textBox7);
-            this.groupBox5.Controls.Add(this.textBox8);
-            this.groupBox5.Controls.Add(this.textBox9);
-            this.groupBox5.Controls.Add(this.label4);
-            this.groupBox5.Controls.Add(this.textBox5);
-            this.groupBox5.Controls.Add(this.label9);
-            this.groupBox5.Controls.Add(this.label10);
-            this.groupBox5.Controls.Add(this.textBox6);
-            this.groupBox5.Controls.Add(this.textBox4);
-            this.groupBox5.Controls.Add(this.label7);
-            this.groupBox5.Controls.Add(this.label8);
-            this.groupBox5.Controls.Add(this.label5);
-            this.groupBox5.Controls.Add(this.label6);
-            this.groupBox5.Controls.Add(this.panel1);
-            this.groupBox5.Location = new System.Drawing.Point(11, 233);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(940, 153);
-            this.groupBox5.TabIndex = 15;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Simulation parameters";
+            this.groupBoxSimulationProperties.Controls.Add(this.textBoxRandomSeed);
+            this.groupBoxSimulationProperties.Controls.Add(this.textBoxTimeout);
+            this.groupBoxSimulationProperties.Controls.Add(this.textBoxProbabilityMalicious);
+            this.groupBoxSimulationProperties.Controls.Add(this.label4);
+            this.groupBoxSimulationProperties.Controls.Add(this.textBoxNumberAttempts);
+            this.groupBoxSimulationProperties.Controls.Add(this.label9);
+            this.groupBoxSimulationProperties.Controls.Add(this.label10);
+            this.groupBoxSimulationProperties.Controls.Add(this.textBoxTotalPackets);
+            this.groupBoxSimulationProperties.Controls.Add(this.textBoxSendUntil);
+            this.groupBoxSimulationProperties.Controls.Add(this.label7);
+            this.groupBoxSimulationProperties.Controls.Add(this.label8);
+            this.groupBoxSimulationProperties.Controls.Add(this.label5);
+            this.groupBoxSimulationProperties.Controls.Add(this.label6);
+            this.groupBoxSimulationProperties.Controls.Add(this.panelDistribution);
+            this.groupBoxSimulationProperties.Location = new System.Drawing.Point(11, 233);
+            this.groupBoxSimulationProperties.Name = "groupBoxSimulationProperties";
+            this.groupBoxSimulationProperties.Size = new System.Drawing.Size(940, 153);
+            this.groupBoxSimulationProperties.TabIndex = 15;
+            this.groupBoxSimulationProperties.TabStop = false;
+            this.groupBoxSimulationProperties.Text = "Simulation parameters";
             // 
-            // textBox7
+            // textBoxRandomSeed
             // 
-            this.textBox7.Location = new System.Drawing.Point(663, 116);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(154, 23);
-            this.textBox7.TabIndex = 19;
+            this.textBoxRandomSeed.Location = new System.Drawing.Point(663, 116);
+            this.textBoxRandomSeed.Name = "textBoxRandomSeed";
+            this.textBoxRandomSeed.Size = new System.Drawing.Size(154, 23);
+            this.textBoxRandomSeed.TabIndex = 19;
             // 
-            // textBox8
+            // textBoxTimeout
             // 
-            this.textBox8.Location = new System.Drawing.Point(663, 87);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(154, 23);
-            this.textBox8.TabIndex = 20;
+            this.textBoxTimeout.Location = new System.Drawing.Point(663, 87);
+            this.textBoxTimeout.Name = "textBoxTimeout";
+            this.textBoxTimeout.Size = new System.Drawing.Size(154, 23);
+            this.textBoxTimeout.TabIndex = 20;
             // 
-            // textBox9
+            // textBoxProbabilityMalicious
             // 
-            this.textBox9.Location = new System.Drawing.Point(663, 29);
-            this.textBox9.Name = "textBox9";
-            this.textBox9.Size = new System.Drawing.Size(154, 23);
-            this.textBox9.TabIndex = 21;
+            this.textBoxProbabilityMalicious.Location = new System.Drawing.Point(663, 29);
+            this.textBoxProbabilityMalicious.Name = "textBoxProbabilityMalicious";
+            this.textBoxProbabilityMalicious.Size = new System.Drawing.Size(154, 23);
+            this.textBoxProbabilityMalicious.TabIndex = 21;
             // 
-            // textBox5
+            // textBoxNumberAttempts
             // 
-            this.textBox5.Location = new System.Drawing.Point(663, 58);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(154, 23);
-            this.textBox5.TabIndex = 17;
+            this.textBoxNumberAttempts.Location = new System.Drawing.Point(663, 58);
+            this.textBoxNumberAttempts.Name = "textBoxNumberAttempts";
+            this.textBoxNumberAttempts.Size = new System.Drawing.Size(154, 23);
+            this.textBoxNumberAttempts.TabIndex = 17;
             // 
-            // textBox6
+            // textBoxTotalPackets
             // 
-            this.textBox6.Location = new System.Drawing.Point(162, 29);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(154, 23);
-            this.textBox6.TabIndex = 18;
+            this.textBoxTotalPackets.Location = new System.Drawing.Point(162, 29);
+            this.textBoxTotalPackets.Name = "textBoxTotalPackets";
+            this.textBoxTotalPackets.Size = new System.Drawing.Size(154, 23);
+            this.textBoxTotalPackets.TabIndex = 18;
             // 
-            // textBox4
+            // textBoxSendUntil
             // 
-            this.textBox4.Location = new System.Drawing.Point(162, 57);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(154, 23);
-            this.textBox4.TabIndex = 16;
+            this.textBoxSendUntil.Location = new System.Drawing.Point(162, 57);
+            this.textBoxSendUntil.Name = "textBoxSendUntil";
+            this.textBoxSendUntil.Size = new System.Drawing.Size(154, 23);
+            this.textBoxSendUntil.TabIndex = 16;
             // 
-            // panel1
+            // panelDistribution
             // 
-            this.panel1.Controls.Add(this.radioButton2);
-            this.panel1.Controls.Add(this.radioButton1);
-            this.panel1.Location = new System.Drawing.Point(162, 86);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(154, 53);
-            this.panel1.TabIndex = 16;
+            this.panelDistribution.Controls.Add(this.radioButtonDistributionGaussian);
+            this.panelDistribution.Controls.Add(this.radioButtonDistributionUniform);
+            this.panelDistribution.Location = new System.Drawing.Point(162, 86);
+            this.panelDistribution.Name = "panelDistribution";
+            this.panelDistribution.Size = new System.Drawing.Size(154, 53);
+            this.panelDistribution.TabIndex = 16;
             // 
-            // radioButton2
+            // radioButtonDistributionGaussian
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(9, 28);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(117, 19);
-            this.radioButton2.TabIndex = 17;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Discrete Gaussian";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButtonDistributionGaussian.AutoSize = true;
+            this.radioButtonDistributionGaussian.Location = new System.Drawing.Point(9, 28);
+            this.radioButtonDistributionGaussian.Name = "radioButtonDistributionGaussian";
+            this.radioButtonDistributionGaussian.Size = new System.Drawing.Size(117, 19);
+            this.radioButtonDistributionGaussian.TabIndex = 17;
+            this.radioButtonDistributionGaussian.TabStop = true;
+            this.radioButtonDistributionGaussian.Text = "Discrete Gaussian";
+            this.radioButtonDistributionGaussian.UseVisualStyleBackColor = true;
             // 
-            // radioButton1
+            // radioButtonDistributionUniform
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(9, 5);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(69, 19);
-            this.radioButton1.TabIndex = 16;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Uniform";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButtonDistributionUniform.AutoSize = true;
+            this.radioButtonDistributionUniform.Location = new System.Drawing.Point(9, 5);
+            this.radioButtonDistributionUniform.Name = "radioButtonDistributionUniform";
+            this.radioButtonDistributionUniform.Size = new System.Drawing.Size(69, 19);
+            this.radioButtonDistributionUniform.TabIndex = 16;
+            this.radioButtonDistributionUniform.TabStop = true;
+            this.radioButtonDistributionUniform.Text = "Uniform";
+            this.radioButtonDistributionUniform.UseVisualStyleBackColor = true;
             // 
-            // groupBox6
+            // groupBoxResults
             // 
-            this.groupBox6.Controls.Add(this.textBox16);
-            this.groupBox6.Controls.Add(this.label16);
-            this.groupBox6.Controls.Add(this.textBox14);
-            this.groupBox6.Controls.Add(this.label17);
-            this.groupBox6.Controls.Add(this.label14);
-            this.groupBox6.Controls.Add(this.label15);
-            this.groupBox6.Controls.Add(this.label11);
-            this.groupBox6.Controls.Add(this.textBox15);
-            this.groupBox6.Controls.Add(this.label12);
-            this.groupBox6.Controls.Add(this.label13);
-            this.groupBox6.Controls.Add(this.textBox13);
-            this.groupBox6.Controls.Add(this.textBox10);
-            this.groupBox6.Controls.Add(this.textBox11);
-            this.groupBox6.Controls.Add(this.textBox12);
-            this.groupBox6.Location = new System.Drawing.Point(11, 453);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(940, 182);
-            this.groupBox6.TabIndex = 16;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Results";
+            this.groupBoxResults.Controls.Add(this.textBoxPacketsDeliveredMalicious);
+            this.groupBoxResults.Controls.Add(this.label16);
+            this.groupBoxResults.Controls.Add(this.textBoxPacketsDelivered);
+            this.groupBoxResults.Controls.Add(this.label17);
+            this.groupBoxResults.Controls.Add(this.label14);
+            this.groupBoxResults.Controls.Add(this.label15);
+            this.groupBoxResults.Controls.Add(this.label11);
+            this.groupBoxResults.Controls.Add(this.textBoxAverageAttempts);
+            this.groupBoxResults.Controls.Add(this.label12);
+            this.groupBoxResults.Controls.Add(this.label13);
+            this.groupBoxResults.Controls.Add(this.textBoxAverageTimeDelivered);
+            this.groupBoxResults.Controls.Add(this.textBoxSimulationLength);
+            this.groupBoxResults.Controls.Add(this.textBoxPacketsSentMalicious);
+            this.groupBoxResults.Controls.Add(this.textBoxPacketsSent);
+            this.groupBoxResults.Location = new System.Drawing.Point(11, 453);
+            this.groupBoxResults.Name = "groupBoxResults";
+            this.groupBoxResults.Size = new System.Drawing.Size(940, 182);
+            this.groupBoxResults.TabIndex = 16;
+            this.groupBoxResults.TabStop = false;
+            this.groupBoxResults.Text = "Results";
             // 
-            // textBox16
+            // textBoxPacketsDeliveredMalicious
             // 
-            this.textBox16.Location = new System.Drawing.Point(622, 82);
-            this.textBox16.Name = "textBox16";
-            this.textBox16.ReadOnly = true;
-            this.textBox16.Size = new System.Drawing.Size(154, 23);
-            this.textBox16.TabIndex = 23;
-            this.textBox16.Text = "0";
+            this.textBoxPacketsDeliveredMalicious.Location = new System.Drawing.Point(622, 82);
+            this.textBoxPacketsDeliveredMalicious.Name = "textBoxPacketsDeliveredMalicious";
+            this.textBoxPacketsDeliveredMalicious.ReadOnly = true;
+            this.textBoxPacketsDeliveredMalicious.Size = new System.Drawing.Size(154, 23);
+            this.textBoxPacketsDeliveredMalicious.TabIndex = 23;
+            this.textBoxPacketsDeliveredMalicious.Text = "0";
             // 
             // label16
             // 
@@ -481,14 +481,14 @@
             this.label16.TabIndex = 24;
             this.label16.Text = "/";
             // 
-            // textBox14
+            // textBoxPacketsDelivered
             // 
-            this.textBox14.Location = new System.Drawing.Point(622, 54);
-            this.textBox14.Name = "textBox14";
-            this.textBox14.ReadOnly = true;
-            this.textBox14.Size = new System.Drawing.Size(154, 23);
-            this.textBox14.TabIndex = 21;
-            this.textBox14.Text = "0";
+            this.textBoxPacketsDelivered.Location = new System.Drawing.Point(622, 54);
+            this.textBoxPacketsDelivered.Name = "textBoxPacketsDelivered";
+            this.textBoxPacketsDelivered.ReadOnly = true;
+            this.textBoxPacketsDelivered.Size = new System.Drawing.Size(154, 23);
+            this.textBoxPacketsDelivered.TabIndex = 21;
+            this.textBoxPacketsDelivered.Text = "0";
             // 
             // label17
             // 
@@ -526,14 +526,14 @@
             this.label11.TabIndex = 17;
             this.label11.Text = "Length of simulation";
             // 
-            // textBox15
+            // textBoxAverageAttempts
             // 
-            this.textBox15.Location = new System.Drawing.Point(444, 142);
-            this.textBox15.Name = "textBox15";
-            this.textBox15.ReadOnly = true;
-            this.textBox15.Size = new System.Drawing.Size(154, 23);
-            this.textBox15.TabIndex = 22;
-            this.textBox15.Text = "0";
+            this.textBoxAverageAttempts.Location = new System.Drawing.Point(444, 142);
+            this.textBoxAverageAttempts.Name = "textBoxAverageAttempts";
+            this.textBoxAverageAttempts.ReadOnly = true;
+            this.textBoxAverageAttempts.Size = new System.Drawing.Size(154, 23);
+            this.textBoxAverageAttempts.TabIndex = 22;
+            this.textBoxAverageAttempts.Text = "0";
             // 
             // label12
             // 
@@ -553,93 +553,93 @@
             this.label13.TabIndex = 19;
             this.label13.Text = "Sent / delivered malicious packets";
             // 
-            // textBox13
+            // textBoxAverageTimeDelivered
             // 
-            this.textBox13.Location = new System.Drawing.Point(444, 111);
-            this.textBox13.Name = "textBox13";
-            this.textBox13.ReadOnly = true;
-            this.textBox13.Size = new System.Drawing.Size(154, 23);
-            this.textBox13.TabIndex = 20;
-            this.textBox13.Text = "0";
+            this.textBoxAverageTimeDelivered.Location = new System.Drawing.Point(444, 111);
+            this.textBoxAverageTimeDelivered.Name = "textBoxAverageTimeDelivered";
+            this.textBoxAverageTimeDelivered.ReadOnly = true;
+            this.textBoxAverageTimeDelivered.Size = new System.Drawing.Size(154, 23);
+            this.textBoxAverageTimeDelivered.TabIndex = 20;
+            this.textBoxAverageTimeDelivered.Text = "0";
             // 
-            // textBox10
+            // textBoxSimulationLength
             // 
-            this.textBox10.Location = new System.Drawing.Point(444, 25);
-            this.textBox10.Name = "textBox10";
-            this.textBox10.ReadOnly = true;
-            this.textBox10.Size = new System.Drawing.Size(154, 23);
-            this.textBox10.TabIndex = 17;
-            this.textBox10.Text = "0";
+            this.textBoxSimulationLength.Location = new System.Drawing.Point(444, 25);
+            this.textBoxSimulationLength.Name = "textBoxSimulationLength";
+            this.textBoxSimulationLength.ReadOnly = true;
+            this.textBoxSimulationLength.Size = new System.Drawing.Size(154, 23);
+            this.textBoxSimulationLength.TabIndex = 17;
+            this.textBoxSimulationLength.Text = "0";
             // 
-            // textBox11
+            // textBoxPacketsSentMalicious
             // 
-            this.textBox11.Location = new System.Drawing.Point(444, 82);
-            this.textBox11.Name = "textBox11";
-            this.textBox11.ReadOnly = true;
-            this.textBox11.Size = new System.Drawing.Size(154, 23);
-            this.textBox11.TabIndex = 18;
-            this.textBox11.Text = "0";
+            this.textBoxPacketsSentMalicious.Location = new System.Drawing.Point(444, 82);
+            this.textBoxPacketsSentMalicious.Name = "textBoxPacketsSentMalicious";
+            this.textBoxPacketsSentMalicious.ReadOnly = true;
+            this.textBoxPacketsSentMalicious.Size = new System.Drawing.Size(154, 23);
+            this.textBoxPacketsSentMalicious.TabIndex = 18;
+            this.textBoxPacketsSentMalicious.Text = "0";
             // 
-            // textBox12
+            // textBoxPacketsSent
             // 
-            this.textBox12.Location = new System.Drawing.Point(444, 54);
-            this.textBox12.Name = "textBox12";
-            this.textBox12.ReadOnly = true;
-            this.textBox12.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.textBox12.Size = new System.Drawing.Size(154, 23);
-            this.textBox12.TabIndex = 19;
-            this.textBox12.Text = "0";
+            this.textBoxPacketsSent.Location = new System.Drawing.Point(444, 54);
+            this.textBoxPacketsSent.Name = "textBoxPacketsSent";
+            this.textBoxPacketsSent.ReadOnly = true;
+            this.textBoxPacketsSent.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.textBoxPacketsSent.Size = new System.Drawing.Size(154, 23);
+            this.textBoxPacketsSent.TabIndex = 19;
+            this.textBoxPacketsSent.Text = "0";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(962, 644);
-            this.Controls.Add(this.groupBox6);
-            this.Controls.Add(this.groupBox5);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.groupBoxResults);
+            this.Controls.Add(this.groupBoxSimulationProperties);
+            this.Controls.Add(this.groupBoxDeviceProperties);
+            this.Controls.Add(this.buttonRemove);
+            this.Controls.Add(this.buttonAdd);
+            this.Controls.Add(this.groupBoxDevices);
+            this.Controls.Add(this.buttonStart);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox6.PerformLayout();
+            this.groupBoxDevices.ResumeLayout(false);
+            this.groupBoxDeviceProperties.ResumeLayout(false);
+            this.groupBoxDeviceProperties.PerformLayout();
+            this.groupBoxDeviceFirewall.ResumeLayout(false);
+            this.groupBoxDeviceFirewall.PerformLayout();
+            this.groupBoxDeviceConnections.ResumeLayout(false);
+            this.groupBoxDeviceConnections.PerformLayout();
+            this.groupBoxSimulationProperties.ResumeLayout(false);
+            this.groupBoxSimulationProperties.PerformLayout();
+            this.panelDistribution.ResumeLayout(false);
+            this.panelDistribution.PerformLayout();
+            this.groupBoxResults.ResumeLayout(false);
+            this.groupBoxResults.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.ListBox listBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button buttonStart;
+        private System.Windows.Forms.ListBox listBoxDevices;
+        private System.Windows.Forms.GroupBox groupBoxDevices;
+        private System.Windows.Forms.Button buttonAdd;
+        private System.Windows.Forms.Button buttonRemove;
+        private System.Windows.Forms.GroupBox groupBoxDeviceProperties;
+        private System.Windows.Forms.GroupBox groupBoxDeviceConnections;
+        private System.Windows.Forms.ListBox listBoxDeviceConnections;
+        private System.Windows.Forms.CheckBox checkBoxDeviceConnected;
+        private System.Windows.Forms.TextBox textBoxDeviceTransferTime;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox comboBoxDeviceType;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBoxDeviceTimeProcess;
+        private System.Windows.Forms.CheckBox checkBoxDeviceFirewall;
+        private System.Windows.Forms.GroupBox groupBoxDeviceFirewall;
+        private System.Windows.Forms.TextBox textBoxDeviceTimeProcessFirewall;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
@@ -648,29 +648,29 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.TextBox textBox7;
-        private System.Windows.Forms.TextBox textBox8;
-        private System.Windows.Forms.TextBox textBox9;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.GroupBox groupBoxSimulationProperties;
+        private System.Windows.Forms.TextBox textBoxRandomSeed;
+        private System.Windows.Forms.TextBox textBoxTimeout;
+        private System.Windows.Forms.TextBox textBoxProbabilityMalicious;
+        private System.Windows.Forms.TextBox textBoxNumberAttempts;
+        private System.Windows.Forms.TextBox textBoxTotalPackets;
+        private System.Windows.Forms.TextBox textBoxSendUntil;
+        private System.Windows.Forms.Panel panelDistribution;
+        private System.Windows.Forms.RadioButton radioButtonDistributionGaussian;
+        private System.Windows.Forms.RadioButton radioButtonDistributionUniform;
+        private System.Windows.Forms.GroupBox groupBoxResults;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.TextBox textBox10;
-        private System.Windows.Forms.TextBox textBox11;
-        private System.Windows.Forms.TextBox textBox12;
-        private System.Windows.Forms.TextBox textBox13;
-        private System.Windows.Forms.TextBox textBox14;
-        private System.Windows.Forms.TextBox textBox15;
-        private System.Windows.Forms.TextBox textBox16;
+        private System.Windows.Forms.TextBox textBoxSimulationLength;
+        private System.Windows.Forms.TextBox textBoxPacketsSentMalicious;
+        private System.Windows.Forms.TextBox textBoxPacketsSent;
+        private System.Windows.Forms.TextBox textBoxAverageTimeDelivered;
+        private System.Windows.Forms.TextBox textBoxPacketsDelivered;
+        private System.Windows.Forms.TextBox textBoxAverageAttempts;
+        private System.Windows.Forms.TextBox textBoxPacketsDeliveredMalicious;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
     }
