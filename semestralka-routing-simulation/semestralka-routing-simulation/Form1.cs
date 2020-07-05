@@ -33,11 +33,12 @@ namespace semestralka_routing_simulation
             Simulation.RunSimulation(listBoxDevices, numericUpDownTotalPackets, numericUpDownSendUntil, radioButtonDistributionUniform,
                 numericUpDownProbabilityMalicious, numericUpDownNumberAttempts, numericUpDownTimeout, numericUpDownRandomSeed,
                 textBoxSimulationLength, textBoxPacketsSent, textBoxPacketsDelivered, textBoxPacketsSentMalicious,
-                textBoxPacketsDeliveredMalicious, textBoxAverageTimeDelivered, textBoxAverageAttempts);
+                textBoxPacketsDeliveredMalicious, textBoxAverageTimeDelivered, textBoxAverageAttempts, panelInput);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            panelInput.Enabled = false;
             Thread newThread = new Thread(new ThreadStart(startSimulation));
             newThread.Start();
         }

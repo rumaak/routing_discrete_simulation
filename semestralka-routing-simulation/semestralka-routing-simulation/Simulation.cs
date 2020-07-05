@@ -533,6 +533,7 @@ namespace semestralka_routing_simulation
     static class Simulation
     {
         public delegate void SafeCallDelegate(TextBox output, string text);
+        public delegate void SafeCallDelegateInput(Panel panelInput);
         public static int routingIndex = 0;
         public static int linkIndex = 1;
         public static int firewallIndex = 1;
@@ -670,6 +671,19 @@ namespace semestralka_routing_simulation
             }
         }
 
+        public static void enableInput(Panel panelInput)
+        {
+            if (panelInput.InvokeRequired)
+            {
+                var d = new SafeCallDelegateInput(enableInput);
+                panelInput.Invoke(d, new object[] { panelInput });
+            }
+            else
+            {
+                panelInput.Enabled = true;
+            }
+        }
+
         // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
         public static ulong getNextGaussian(ulong maxTime, Random rnd)
         {
@@ -738,7 +752,7 @@ namespace semestralka_routing_simulation
         public static void RunSimulation(ListBox devices, NumericUpDown totalPackets, NumericUpDown maxTime, RadioButton distributionUniform, 
             NumericUpDown probabilityMalicious, NumericUpDown timeoutAttempts, NumericUpDown timeout, NumericUpDown randomSeed,
             TextBox simulationLength, TextBox packetsSent, TextBox packetsDelivered, TextBox packetsSentMalicious,
-            TextBox packetsDeliveredMalicious, TextBox averageTimeDelivered, TextBox averageAttempts)
+            TextBox packetsDeliveredMalicious, TextBox averageTimeDelivered, TextBox averageAttempts, Panel panelInput)
         {
             Debug.WriteLine("Simulation started");
 
@@ -769,7 +783,6 @@ namespace semestralka_routing_simulation
             ulong lastTime = 0;
             while (simEvent != null)
             {
-                // TODO update GUI values
                 model.time = simEvent.time;
                 simEvent.execute(model);
                 simEvent = scheduler.GetFirst();
@@ -794,6 +807,8 @@ namespace semestralka_routing_simulation
             routingIndexToDevice = new Dictionary<int, Device>();
             deviceIndexToRoutingIndex = new Dictionary<int, int>();
             routingIndexToDeviceIndex = new Dictionary<int, int>();
+
+            enableInput(panelInput);
         }
     }
 
