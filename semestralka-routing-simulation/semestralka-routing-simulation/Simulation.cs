@@ -504,6 +504,7 @@ namespace semestralka_routing_simulation
         public List<Firewall> firewalls;
         public Scheduler scheduler;
         public int[,] routingTable;
+        public ulong[,] routingTableWeights;
         public Statistics statistics;
 
         public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts, Statistics statistics)
@@ -512,9 +513,6 @@ namespace semestralka_routing_simulation
             routers = new List<Router>();
             computers = new List<Computer>();
             firewalls = new List<Firewall>();
-            
-            // TODO initialize routing table
-            routingTable = Simulation.getRouting();
             
             this.scheduler = scheduler;
             this.timeout = timeout;
@@ -530,6 +528,7 @@ namespace semestralka_routing_simulation
         public static int firewallIndex = 1;
         public static Dictionary<int, Device> routingIndexToDevice = new Dictionary<int, Device>(); 
         public static Dictionary<int, int> deviceIndexToRoutingIndex = new Dictionary<int, int>();
+        public static Dictionary<int, int> routingIndexToDeviceIndex = new Dictionary<int, int>();
 
         public static void extractDevices(Model model, ListBox devices)
         {
@@ -537,23 +536,22 @@ namespace semestralka_routing_simulation
             {
                 if (device.deviceType == DeviceType.Computer)
                 {
-                    Computer computer = new Computer(device.ID, routingIndex);
+                    Computer computer = new Computer(device.ID, deviceIndexToRoutingIndex[device.ID]);
 
                     for (int i = 0; i < device.connections.Count; i++)
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], computer);
                         linkIndex += 1;
                         computer.addLink(link);
+
                     }
 
                     model.computers.Add(computer);
-                    routingIndexToDevice.Add(routingIndex, computer);
-                    deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
-                    routingIndex += 1;
+                    routingIndexToDevice.Add(deviceIndexToRoutingIndex[computer.ID], computer);
                 }
                 else
                 {
-                    Router router = new Router(device.ID, device.timeToProcess, routingIndex);
+                    Router router = new Router(device.ID, device.timeToProcess, deviceIndexToRoutingIndex[device.ID]);
 
                     for (int i = 0; i < device.connections.Count; i++)
                     {
@@ -571,75 +569,70 @@ namespace semestralka_routing_simulation
                     }
 
                     model.routers.Add(router);
-                    routingIndexToDevice.Add(routingIndex, router);
-                    deviceIndexToRoutingIndex.Add(router.ID, routingIndex);
-                    routingIndex += 1;
+                    routingIndexToDevice.Add(deviceIndexToRoutingIndex[router.ID], router);
                 }
             }
-        }
-
-        public static List<Router> getRouters()
-        {
-            List<Router> routers = new List<Router>();
-            Router router = new Router(1, 1, routingIndex);
-
-            Link link = new Link(5, 2, 5, router);
-            router.addLink(link);
-            link = new Link(6, 3, 3, router);
-            router.addLink(link);
-
-            routers.Add(router);
-            routingIndexToDevice.Add(routingIndex, router);
-            deviceIndexToRoutingIndex.Add(router.ID, routingIndex);
-            routingIndex += 1;
-            return routers;
-        }
-
-        public static List<Computer> getComputers()
-        {
-            List<Computer> computers = new List<Computer>();
-            
-            Computer computer = new Computer(2, routingIndex);
-
-            Link link = new Link(7, 1, 5, computer);
-            computer.addLink(link);
-
-            computers.Add(computer);
-            routingIndexToDevice.Add(routingIndex, computer);
-            deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
-            routingIndex += 1;
-
-            computer = new Computer(3, routingIndex);
-
-            link = new Link(8, 1, 3, computer);
-            computer.addLink(link);
-
-            computers.Add(computer);
-            routingIndexToDevice.Add(routingIndex, computer);
-            deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
-            routingIndex += 1;
-            
-            return computers;
-        }
-
-        public static List<Firewall> getFirewalls(List<Router> routers)
-        {
-            Router router = routers[0];
-            List<Firewall> firewalls = new List<Firewall>();
-            Firewall firewall = new Firewall(4, 1, router);
-            firewalls.Add(firewall);
-            router.setFirewall(firewall);
-            return firewalls;
         }
 
         public static int[,] getRouting()
         {
             int[,] routing_table = {
                 { 0, 1, 2 },
-                { 1, 1, 0 },
-                { 2, 0, 2 }
+                { 0, 1, 0 },
+                { 0, 0, 2 }
             };
             return routing_table;
+        }
+
+        public static void initializeRoutingTables(Model model, ListBox devices)
+        {
+            int[,] routingTableSuccesors = new int[devices.Items.Count, devices.Items.Count];
+            ulong[,] routingTableWeights = new ulong[devices.Items.Count, devices.Items.Count];
+            
+            for (int i = 0; i < devices.Items.Count; i++)
+            {
+                for (int j = 0; j < devices.Items.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        routingTableSuccesors[i, j] = i;
+                        routingTableWeights[i, j] = 0;
+                    }
+                    else
+                    {
+                        routingTableSuccesors[i, j] = -1;
+                        // Each connections' transfer time is limited by int.MaxValue, the number of possible indices for devices
+                        // is also limited by int.MaxValue, and because int.MaxValue * int.MaxValue < ulong.MaxValue, this is safe
+                        routingTableWeights[i, j] = ulong.MaxValue;
+                    }
+                }
+            }
+
+            foreach (FormDevice device in devices.Items)
+            {
+                int sourceIndex = deviceIndexToRoutingIndex[device.ID];
+
+                for (int i = 0; i < device.connections.Count; i++)
+                {
+                    FormDevice connectedDevice = device.connections[i];
+                    int destinationIndex = deviceIndexToRoutingIndex[connectedDevice.ID];
+                    routingTableSuccesors[sourceIndex, destinationIndex] = destinationIndex;
+                    routingTableWeights[sourceIndex, destinationIndex] = (ulong)device.transferTimes[i];
+                }
+            }
+
+            model.routingTable = routingTableSuccesors;
+            model.routingTableWeights = routingTableWeights;
+        }
+
+        public static void assignRoutingIndices(ListBox devices)
+        {
+            foreach (FormDevice device in devices.Items)
+            {
+                deviceIndexToRoutingIndex.Add(device.ID, routingIndex);
+                routingIndexToDeviceIndex.Add(routingIndex, device.ID);
+                routingIndex += 1;
+            }
         }
 
         // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
@@ -732,9 +725,14 @@ namespace semestralka_routing_simulation
             }
 
             statistics.sentPackets = (ulong)totalPackets.Value;
+            assignRoutingIndices(devices);
             extractDevices(model, devices);
+            initializeRoutingTables(model, devices);
             generatePackets(model.computers, scheduler, (ulong)totalPackets.Value, (ulong)maxTime.Value, (double)probabilityMalicious.Value, 
                 statistics, distribution, (int)randomSeed.Value);
+
+            // TODO remove this line when Floyd-Warshall is implemented
+            model.routingTable = getRouting();
 
             SimulationEvent simEvent = scheduler.GetFirst();
             while (simEvent != null)
@@ -751,7 +749,14 @@ namespace semestralka_routing_simulation
             Debug.WriteLine($"Sent / delivered malicious packets: {statistics.sentPacketsMalicious} / {statistics.deliveredPacketsMalicious}");
             Debug.WriteLine($"Average time of delivery: {statistics.getAverageDeliveryTime()}");
             Debug.WriteLine($"Average number of attempts: {statistics.getAverageNumberAttempts()}");
-        }
+
+            routingIndex = 0;
+            linkIndex = 1;
+            firewallIndex = 1;
+            routingIndexToDevice = new Dictionary<int, Device>();
+            deviceIndexToRoutingIndex = new Dictionary<int, int>();
+            routingIndexToDeviceIndex = new Dictionary<int, int>();
+    }
     }
 
     class Statistics

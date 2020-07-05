@@ -182,10 +182,13 @@ namespace semestralka_routing_simulation
 
         private void button2_Click(object sender, EventArgs e)
         {
-            FormDevice device = new FormDevice(DeviceType.Computer, 1, false, 1, nextID);
-            nextID += 1;
-            listBoxDevices.Items.Add(device);
-            listBox1_SelectedIndexChanged(listBoxDevices, e);
+            if (nextID < int.MaxValue)
+            {
+                FormDevice device = new FormDevice(DeviceType.Computer, 1, false, 1, nextID);
+                nextID += 1;
+                listBoxDevices.Items.Add(device);
+                listBox1_SelectedIndexChanged(listBoxDevices, e);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
