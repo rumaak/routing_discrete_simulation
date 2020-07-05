@@ -30,10 +30,30 @@ namespace semestralka_routing_simulation
 
         private void startSimulation()
         {
-            Simulation.RunSimulation(listBoxDevices, numericUpDownTotalPackets, numericUpDownSendUntil, radioButtonDistributionUniform,
-                numericUpDownProbabilityMalicious, numericUpDownNumberAttempts, numericUpDownTimeout, numericUpDownRandomSeed,
-                textBoxSimulationLength, textBoxPacketsSent, textBoxPacketsDelivered, textBoxPacketsSentMalicious,
-                textBoxPacketsDeliveredMalicious, textBoxAverageTimeDelivered, textBoxAverageAttempts, panelInput);
+            SimulationParametersDto simulationParameters = new SimulationParametersDto()
+            {
+                devices = listBoxDevices.Items,
+                totalPackets = (ulong)numericUpDownTotalPackets.Value,
+                sendUntil = (ulong)numericUpDownSendUntil.Value,
+                distributionUniform = radioButtonDistributionUniform.Checked,
+                probabilityMalicious = (double)numericUpDownProbabilityMalicious.Value,
+                numberAttempts = (int)numericUpDownNumberAttempts.Value,
+                timeout = (ulong)numericUpDownTimeout.Value,
+                randomSeed = (int)numericUpDownRandomSeed.Value
+            };
+
+            ResultControls controls = new ResultControls()
+            {
+                simulationLength = textBoxSimulationLength,
+                packetsSent = textBoxPacketsSent,
+                packetsDelivered = textBoxPacketsDelivered,
+                packetsSentMalicious = textBoxPacketsSentMalicious,
+                packetsDeliveredMalicious = textBoxPacketsDeliveredMalicious,
+                averageTimeDelivered = textBoxAverageTimeDelivered,
+                averageAttempts = textBoxAverageAttempts
+            };
+
+            Simulation.RunSimulation(simulationParameters, controls, panelInput);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -389,5 +409,28 @@ namespace semestralka_routing_simulation
                 return $"PC{ID}";
             }
         }
+    }
+
+   class SimulationParametersDto
+    {
+        public ListBox.ObjectCollection devices { get; set; }
+        public ulong totalPackets { get; set; }
+        public ulong sendUntil { get; set; }
+        public ulong timeout { get; set; }
+        public bool distributionUniform { get; set; }
+        public double probabilityMalicious { get; set; }
+        public int numberAttempts { get; set; }
+        public int randomSeed { get; set; }
+    }
+
+   class ResultControls
+    {
+        public TextBox simulationLength { get; set; }
+        public TextBox packetsSent { get; set; }
+        public TextBox packetsDelivered { get; set; }
+        public TextBox packetsSentMalicious { get; set; }
+        public TextBox packetsDeliveredMalicious { get; set; }
+        public TextBox averageTimeDelivered { get; set; }
+        public TextBox averageAttempts { get; set; }
     }
 }
