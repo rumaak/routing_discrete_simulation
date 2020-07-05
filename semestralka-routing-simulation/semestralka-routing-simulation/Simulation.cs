@@ -298,6 +298,15 @@ namespace semestralka_routing_simulation
                 
                 sendPacket(packet, model);
 
+                if (packet.malicious)
+                {
+                    model.statistics.sentPacketsMalicious += 1;
+                } 
+                else
+                {
+                    model.statistics.sentPackets += 1;
+                }
+
                 Debug.WriteLine($"{model.time}: Computer {ID} sends packet {packet.ID}");
             }
             else if (simEvent.eventType == EventType.ProcessPacket)
@@ -523,6 +532,7 @@ namespace semestralka_routing_simulation
     
     static class Simulation
     {
+        public delegate void SafeCallDelegate(TextBox output, string text);
         public static int routingIndex = 0;
         public static int linkIndex = 1;
         public static int firewallIndex = 1;
@@ -635,6 +645,31 @@ namespace semestralka_routing_simulation
             }
         }
 
+        public static void updateResults(Statistics statistics, TextBox simulationLength, TextBox packetsSent, TextBox packetsDelivered, TextBox packetsSentMalicious, 
+            TextBox packetsDeliveredMalicious, TextBox averageTimeDelivered, TextBox averageAttempts)
+        {
+            changeText(simulationLength, statistics.lengthOfSimulation.ToString());
+            changeText(packetsSent, statistics.sentPackets.ToString());
+            changeText(packetsDelivered, statistics.deliveredPackets.ToString());
+            changeText(packetsSentMalicious, statistics.sentPacketsMalicious.ToString());
+            changeText(packetsDeliveredMalicious, statistics.deliveredPacketsMalicious.ToString());
+            changeText(averageTimeDelivered, statistics.getAverageDeliveryTime().ToString());
+            changeText(averageAttempts, statistics.getAverageNumberAttempts().ToString());
+        }
+
+        public static void changeText(TextBox output, string text)
+        {
+            if (output.InvokeRequired)
+            {
+                var d = new SafeCallDelegate(changeText);
+                output.Invoke(d, new object[] { output, text });
+            }
+            else
+            {
+                output.Text = text;
+            }
+        }
+
         // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
         public static ulong getNextGaussian(ulong maxTime, Random rnd)
         {
@@ -669,11 +704,6 @@ namespace semestralka_routing_simulation
 
                 if (from == to) continue;
 
-                if (malicious)
-                {
-                    statistics.sentPacketsMalicious += 1;
-                }
-
                 if (distribution == Distribution.Uniform)
                 {
                     when = Get64BitRandom(maxTime, rnd);
@@ -706,7 +736,9 @@ namespace semestralka_routing_simulation
         }
 
         public static void RunSimulation(ListBox devices, NumericUpDown totalPackets, NumericUpDown maxTime, RadioButton distributionUniform, 
-            NumericUpDown probabilityMalicious, NumericUpDown timeoutAttempts, NumericUpDown timeout, NumericUpDown randomSeed)
+            NumericUpDown probabilityMalicious, NumericUpDown timeoutAttempts, NumericUpDown timeout, NumericUpDown randomSeed,
+            TextBox simulationLength, TextBox packetsSent, TextBox packetsDelivered, TextBox packetsSentMalicious,
+            TextBox packetsDeliveredMalicious, TextBox averageTimeDelivered, TextBox averageAttempts)
         {
             Debug.WriteLine("Simulation started");
 
@@ -724,7 +756,6 @@ namespace semestralka_routing_simulation
                 distribution = Distribution.DiscreteGaussian;
             }
 
-            statistics.sentPackets = (ulong)totalPackets.Value;
             assignRoutingIndices(devices);
             extractDevices(model, devices);
             initializeRoutingTables(model, devices);
@@ -735,14 +766,21 @@ namespace semestralka_routing_simulation
             model.routingTable = getRouting();
 
             SimulationEvent simEvent = scheduler.GetFirst();
+            ulong lastTime = 0;
             while (simEvent != null)
             {
                 // TODO update GUI values
                 model.time = simEvent.time;
                 simEvent.execute(model);
                 simEvent = scheduler.GetFirst();
+                if (model.time != lastTime)
+                {
+                    statistics.lengthOfSimulation = model.time;
+                    updateResults(statistics, simulationLength, packetsSent, packetsDelivered, packetsSentMalicious, packetsDeliveredMalicious, 
+                        averageTimeDelivered, averageAttempts);
+                    lastTime = model.time;
+                }
             }
-            statistics.lengthOfSimulation = model.time;
 
             Debug.WriteLine($"Length of simulation: {statistics.lengthOfSimulation}");
             Debug.WriteLine($"Sent / delivered packets: {statistics.sentPackets} / {statistics.deliveredPackets}");
@@ -756,7 +794,7 @@ namespace semestralka_routing_simulation
             routingIndexToDevice = new Dictionary<int, Device>();
             deviceIndexToRoutingIndex = new Dictionary<int, int>();
             routingIndexToDeviceIndex = new Dictionary<int, int>();
-    }
+        }
     }
 
     class Statistics

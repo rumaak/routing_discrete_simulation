@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace semestralka_routing_simulation
@@ -27,10 +28,18 @@ namespace semestralka_routing_simulation
             initializeSimulationParameters();
         }
 
+        private void startSimulation()
+        {
+            Simulation.RunSimulation(listBoxDevices, numericUpDownTotalPackets, numericUpDownSendUntil, radioButtonDistributionUniform,
+                numericUpDownProbabilityMalicious, numericUpDownNumberAttempts, numericUpDownTimeout, numericUpDownRandomSeed,
+                textBoxSimulationLength, textBoxPacketsSent, textBoxPacketsDelivered, textBoxPacketsSentMalicious,
+                textBoxPacketsDeliveredMalicious, textBoxAverageTimeDelivered, textBoxAverageAttempts);
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            Simulation.RunSimulation(listBoxDevices, numericUpDownTotalPackets, numericUpDownSendUntil, radioButtonDistributionUniform, 
-                numericUpDownProbabilityMalicious, numericUpDownNumberAttempts, numericUpDownTimeout, numericUpDownRandomSeed);
+            Thread newThread = new Thread(new ThreadStart(startSimulation));
+            newThread.Start();
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
