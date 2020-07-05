@@ -78,6 +78,7 @@
             this.textBoxSimulationLength = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSentMalicious = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSent = new System.Windows.Forms.TextBox();
+            this.panelInput = new System.Windows.Forms.Panel();
             this.groupBoxDevices.SuspendLayout();
             this.groupBoxDeviceProperties.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcess)).BeginInit();
@@ -94,11 +95,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTotalPackets)).BeginInit();
             this.panelDistribution.SuspendLayout();
             this.groupBoxResults.SuspendLayout();
+            this.panelInput.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(419, 413);
+            this.buttonStart.Location = new System.Drawing.Point(417, 413);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(75, 23);
             this.buttonStart.TabIndex = 0;
@@ -120,7 +122,7 @@
             // groupBoxDevices
             // 
             this.groupBoxDevices.Controls.Add(this.listBoxDevices);
-            this.groupBoxDevices.Location = new System.Drawing.Point(12, 12);
+            this.groupBoxDevices.Location = new System.Drawing.Point(10, 12);
             this.groupBoxDevices.Name = "groupBoxDevices";
             this.groupBoxDevices.Size = new System.Drawing.Size(180, 211);
             this.groupBoxDevices.TabIndex = 3;
@@ -129,7 +131,7 @@
             // 
             // buttonAdd
             // 
-            this.buttonAdd.Location = new System.Drawing.Point(209, 21);
+            this.buttonAdd.Location = new System.Drawing.Point(207, 21);
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(81, 30);
             this.buttonAdd.TabIndex = 4;
@@ -140,7 +142,7 @@
             // buttonRemove
             // 
             this.buttonRemove.Enabled = false;
-            this.buttonRemove.Location = new System.Drawing.Point(209, 57);
+            this.buttonRemove.Location = new System.Drawing.Point(207, 57);
             this.buttonRemove.Name = "buttonRemove";
             this.buttonRemove.Size = new System.Drawing.Size(81, 30);
             this.buttonRemove.TabIndex = 5;
@@ -155,7 +157,7 @@
             this.groupBoxDeviceProperties.Controls.Add(this.comboBoxDeviceType);
             this.groupBoxDeviceProperties.Controls.Add(this.label2);
             this.groupBoxDeviceProperties.Controls.Add(this.groupBoxDeviceConnections);
-            this.groupBoxDeviceProperties.Location = new System.Drawing.Point(323, 12);
+            this.groupBoxDeviceProperties.Location = new System.Drawing.Point(321, 12);
             this.groupBoxDeviceProperties.Name = "groupBoxDeviceProperties";
             this.groupBoxDeviceProperties.Size = new System.Drawing.Size(628, 211);
             this.groupBoxDeviceProperties.TabIndex = 7;
@@ -365,7 +367,7 @@
             this.groupBoxSimulationProperties.Controls.Add(this.label5);
             this.groupBoxSimulationProperties.Controls.Add(this.label6);
             this.groupBoxSimulationProperties.Controls.Add(this.panelDistribution);
-            this.groupBoxSimulationProperties.Location = new System.Drawing.Point(11, 233);
+            this.groupBoxSimulationProperties.Location = new System.Drawing.Point(9, 233);
             this.groupBoxSimulationProperties.Name = "groupBoxSimulationProperties";
             this.groupBoxSimulationProperties.Size = new System.Drawing.Size(940, 153);
             this.groupBoxSimulationProperties.TabIndex = 15;
@@ -596,18 +598,26 @@
             this.textBoxPacketsSent.TabIndex = 19;
             this.textBoxPacketsSent.Text = "0";
             // 
+            // panelInput
+            // 
+            this.panelInput.Controls.Add(this.groupBoxSimulationProperties);
+            this.panelInput.Controls.Add(this.groupBoxDeviceProperties);
+            this.panelInput.Controls.Add(this.buttonRemove);
+            this.panelInput.Controls.Add(this.buttonAdd);
+            this.panelInput.Controls.Add(this.groupBoxDevices);
+            this.panelInput.Controls.Add(this.buttonStart);
+            this.panelInput.Location = new System.Drawing.Point(2, 0);
+            this.panelInput.Name = "panelInput";
+            this.panelInput.Size = new System.Drawing.Size(952, 447);
+            this.panelInput.TabIndex = 17;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(962, 644);
+            this.Controls.Add(this.panelInput);
             this.Controls.Add(this.groupBoxResults);
-            this.Controls.Add(this.groupBoxSimulationProperties);
-            this.Controls.Add(this.groupBoxDeviceProperties);
-            this.Controls.Add(this.buttonRemove);
-            this.Controls.Add(this.buttonAdd);
-            this.Controls.Add(this.groupBoxDevices);
-            this.Controls.Add(this.buttonStart);
             this.Name = "Form1";
             this.Text = "Form1";
             this.groupBoxDevices.ResumeLayout(false);
@@ -632,6 +642,7 @@
             this.panelDistribution.PerformLayout();
             this.groupBoxResults.ResumeLayout(false);
             this.groupBoxResults.PerformLayout();
+            this.panelInput.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -688,6 +699,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDownNumberAttempts;
         private System.Windows.Forms.NumericUpDown numericUpDownTimeout;
         private System.Windows.Forms.NumericUpDown numericUpDownRandomSeed;
+        private System.Windows.Forms.Panel panelInput;
     }
 }
 

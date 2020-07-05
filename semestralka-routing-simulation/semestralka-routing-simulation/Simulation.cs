@@ -54,6 +54,7 @@ namespace semestralka_routing_simulation
             this.sourceDevice = sourceDevice;
             busy = false;
             packetsOut = new List<Packet>();
+            packetsOutTimeouts = new List<ulong>();
         }
 
         public override void HandleEvent(SimulationEvent simEvent, Model model)
@@ -63,8 +64,9 @@ namespace semestralka_routing_simulation
                 if (packetsOut.Count > 0 && !busy)
                 {
                     Packet packet = packetsOut[0];
+                    ulong packetTimeout = packetsOutTimeouts[0];
                     
-                    if (model.time <= packet.timeout)
+                    if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)timeToTransfer, this, EventType.FinishSending);
                         model.scheduler.Add(finishSending);
@@ -73,6 +75,7 @@ namespace semestralka_routing_simulation
                     else
                     {
                         packetsOut.RemoveAt(0);
+                        packetsOutTimeouts.RemoveAt(0);
                         SimulationEvent trySendAnother = new SimulationEvent(model.time, this, EventType.SendPacket);
                         model.scheduler.Add(trySendAnother);
 
@@ -85,7 +88,10 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
-                if (model.time <= packet.timeout)
+                ulong packetTimeout = packetsOutTimeouts[0];
+                packetsOutTimeouts.RemoveAt(0);
+
+                if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
                     int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
                     int nextHopRoutingIndex = model.routingTable[sourceDevice.routingTableIndex, destinationRoutingIndex];
@@ -94,6 +100,7 @@ namespace semestralka_routing_simulation
                     SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ProcessPacket);
                     model.scheduler.Add(receiveEvent);
                     nextHopDevice.addPacketIn(packet);
+                    nextHopDevice.addPacketInTimeout(packet.timeout);
                 }
                 else
                 {
@@ -107,16 +114,20 @@ namespace semestralka_routing_simulation
         }
     }
 
-    // All processes share the same ID pool, packets have their own ID pool
     abstract class Process
     {
         public int ID;
         protected List<Packet> packetsOut;
+        protected List<ulong> packetsOutTimeouts;
 
         public abstract void HandleEvent(SimulationEvent simEvent, Model model);
         public void addPacketOut(Packet packetOut)
         {
             packetsOut.Add(packetOut);
+        }
+        public void addPacketOutTimeout(ulong timeout)
+        {
+            packetsOutTimeouts.Add(timeout);
         }
     }
 
@@ -125,6 +136,7 @@ namespace semestralka_routing_simulation
         public int routingTableIndex;
         protected List<Link> links;
         protected List<Packet> packetsIn;
+        protected List<ulong> packetsInTimeouts;
 
         public void addLink(Link link)
         {
@@ -133,6 +145,10 @@ namespace semestralka_routing_simulation
         public void addPacketIn(Packet packetIn)
         {
             packetsIn.Add(packetIn);
+        }
+        public void addPacketInTimeout(ulong timeout)
+        {
+            packetsInTimeouts.Add(timeout);
         }
         protected Link getLink(Packet packet, Model  model)
         {
@@ -166,6 +182,8 @@ namespace semestralka_routing_simulation
             packetsIn = new List<Packet>();
             packetsOut = new List<Packet>();
             links = new List<Link>();
+            packetsOutTimeouts = new List<ulong>();
+            packetsInTimeouts = new List<ulong>();
             processing = false;
             firewall = null;
         }
@@ -182,10 +200,14 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
+                ulong packetTimeout = packetsOutTimeouts[0];
+                packetsOutTimeouts.RemoveAt(0);
+
                 Link link = getLink(packet, model);
 
                 SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
                 link.addPacketOut(packet);
+                link.addPacketOutTimeout(packetTimeout);
                 model.scheduler.Add(sendPacket);
             }
             else if (simEvent.eventType == EventType.ProcessPacket)
@@ -193,8 +215,9 @@ namespace semestralka_routing_simulation
                 if (packetsIn.Count > 0 && !processing)
                 {
                     Packet packet = packetsIn[0];
+                    ulong packetTimeout = packetsInTimeouts[0];
 
-                    if (model.time <= packet.timeout)
+                    if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
                         SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong)timeToProcess, this, EventType.FinishProcessing);
@@ -203,6 +226,7 @@ namespace semestralka_routing_simulation
                     else
                     {
                         packetsIn.RemoveAt(0);
+                        packetsInTimeouts.RemoveAt(0);
                         SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
                         model.scheduler.Add(tryProcessAnother);
 
@@ -216,18 +240,23 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsIn[0];
                 packetsIn.RemoveAt(0);
 
-                if (model.time <= packet.timeout)
+                ulong packetTimeout = packetsInTimeouts[0];
+                packetsInTimeouts.RemoveAt(0);
+
+                if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
                     if (firewall != null)
                     {
                         SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
                         firewall.addPacketOut(packet);
+                        firewall.addPacketOutTimeout(packetTimeout);
                         model.scheduler.Add(processPacket);
                     }
                     else
                     {
                         SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
                         addPacketOut(packet);
+                        addPacketOutTimeout(packetTimeout);
                         model.scheduler.Add(sendPacket);
                     }
                 }
@@ -255,6 +284,8 @@ namespace semestralka_routing_simulation
             packetsOut = new List<Packet>();
             packetsSent = new List<Packet>();
             links = new List<Link>();
+            packetsOutTimeouts = new List<ulong>();
+            packetsInTimeouts = new List<ulong>();
         }
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
@@ -267,14 +298,26 @@ namespace semestralka_routing_simulation
                 
                 sendPacket(packet, model);
 
+                if (packet.malicious)
+                {
+                    model.statistics.sentPacketsMalicious += 1;
+                } 
+                else
+                {
+                    model.statistics.sentPackets += 1;
+                }
+
                 Debug.WriteLine($"{model.time}: Computer {ID} sends packet {packet.ID}");
             }
             else if (simEvent.eventType == EventType.ProcessPacket)
             {
                 Packet packet = packetsIn[0];
                 packetsIn.RemoveAt(0);
+
+                ulong packetTimeout = packetsInTimeouts[0];
+                packetsInTimeouts.RemoveAt(0);
                 
-                if (model.time <= packet.timeout)
+                if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
                     packet.received = true;
 
@@ -326,6 +369,7 @@ namespace semestralka_routing_simulation
 
             SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
             link.addPacketOut(packet);
+            link.addPacketOutTimeout(packet.timeout);
             model.scheduler.Add(sendPacket);
 
             // Adding a single tick because timeout is inclusive (i.e. if packet arrives precisely in time of timeout,
@@ -346,6 +390,7 @@ namespace semestralka_routing_simulation
             this.ID = id;
             this.timeToProcess = timeToProcess;
             packetsOut = new List<Packet>();
+            packetsOutTimeouts = new List<ulong>();
             processing = false;
             this.router = router;
         }
@@ -356,8 +401,9 @@ namespace semestralka_routing_simulation
                 if (packetsOut.Count > 0 && !processing)
                 {
                     Packet packet = packetsOut[0];
+                    ulong packetTimeout = packetsOutTimeouts[0];
 
-                    if (model.time <= packet.timeout)
+                    if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
                         SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong)timeToProcess, this, EventType.FinishProcessing);
@@ -366,6 +412,7 @@ namespace semestralka_routing_simulation
                     else
                     {
                         packetsOut.RemoveAt(0);
+                        packetsOutTimeouts.RemoveAt(0);
                         SimulationEvent tryProcessAnother = new SimulationEvent(model.time, this, EventType.ProcessPacket);
                         model.scheduler.Add(tryProcessAnother);
 
@@ -379,11 +426,14 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
+                ulong packetTimeout = packetsOutTimeouts[0];
+                packetsOutTimeouts.RemoveAt(0);
+
                 if (packet.malicious)
                 {
                     Debug.WriteLine($"Firewall {this.ID} found out that packet {packet.ID} is malicious and discarded it.");
                 }
-                else if (model.time > packet.timeout)
+                else if (model.time > packet.timeout || packetTimeout != packet.timeout)
                 {
                     Debug.WriteLine($"Packet {packet.ID} timed out");
                 }
@@ -391,6 +441,7 @@ namespace semestralka_routing_simulation
                 {
                     SimulationEvent sendPacket = new SimulationEvent(model.time, router, EventType.SendPacket);
                     router.addPacketOut(packet);
+                    router.addPacketOutTimeout(packetTimeout);
                     model.scheduler.Add(sendPacket);
                 }
 
@@ -416,7 +467,7 @@ namespace semestralka_routing_simulation
         public void execute(Model model)
         {
 
-            Debug.WriteLine($"{time}: Process {process.ID} is handling event of type {eventType}");
+            Debug.WriteLine($"{time}: Process {process.GetType().Name}{process.ID} is handling event of type {eventType}");
             process.HandleEvent(this, model);
         }
     }
@@ -462,96 +513,175 @@ namespace semestralka_routing_simulation
         public List<Firewall> firewalls;
         public Scheduler scheduler;
         public int[,] routingTable;
+        public ulong[,] routingTableWeights;
         public Statistics statistics;
 
         public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts, Statistics statistics)
         {
             time = 0;
-            routers = Simulation.getRouters();
-            computers = Simulation.getComputers();
-            firewalls = Simulation.getFirewalls(routers);
-            routingTable = Simulation.getRouting();
+            routers = new List<Router>();
+            computers = new List<Computer>();
+            firewalls = new List<Firewall>();
+            
             this.scheduler = scheduler;
             this.timeout = timeout;
             this.timeoutAttempts = timeoutAttempts;
             this.statistics = statistics;
-
-            ulong totalPackets = 10;
-            ulong maxTime = 100;
-            double maliciousProbability = 0.2;
-            Simulation.generatePackets(computers, scheduler, totalPackets, maxTime, maliciousProbability, statistics, Distribution.DiscreteGaussian);
-
-            this.statistics.sentPackets = totalPackets;
         }
     }
     
     static class Simulation
     {
+        public delegate void SafeCallDelegate(TextBox output, string text);
+        public delegate void SafeCallDelegateInput(Panel panelInput);
         public static int routingIndex = 0;
+        public static int linkIndex = 1;
+        public static int firewallIndex = 1;
         public static Dictionary<int, Device> routingIndexToDevice = new Dictionary<int, Device>(); 
         public static Dictionary<int, int> deviceIndexToRoutingIndex = new Dictionary<int, int>();
-        public static List<Router> getRouters()
+        public static Dictionary<int, int> routingIndexToDeviceIndex = new Dictionary<int, int>();
+
+        public static void extractDevices(Model model, ListBox devices)
         {
-            List<Router> routers = new List<Router>();
-            Router router = new Router(1, 1, routingIndex);
+            foreach (FormDevice device in devices.Items)
+            {
+                if (device.deviceType == DeviceType.Computer)
+                {
+                    Computer computer = new Computer(device.ID, deviceIndexToRoutingIndex[device.ID]);
 
-            Link link = new Link(5, 2, 5, router);
-            router.addLink(link);
-            link = new Link(6, 3, 3, router);
-            router.addLink(link);
+                    for (int i = 0; i < device.connections.Count; i++)
+                    {
+                        Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], computer);
+                        linkIndex += 1;
+                        computer.addLink(link);
 
-            routers.Add(router);
-            routingIndexToDevice.Add(routingIndex, router);
-            deviceIndexToRoutingIndex.Add(router.ID, routingIndex);
-            routingIndex += 1;
-            return routers;
-        }
+                    }
 
-        public static List<Computer> getComputers()
-        {
-            List<Computer> computers = new List<Computer>();
-            
-            Computer computer = new Computer(2, routingIndex);
+                    model.computers.Add(computer);
+                    routingIndexToDevice.Add(deviceIndexToRoutingIndex[computer.ID], computer);
+                }
+                else
+                {
+                    Router router = new Router(device.ID, device.timeToProcess, deviceIndexToRoutingIndex[device.ID]);
 
-            Link link = new Link(7, 1, 5, computer);
-            computer.addLink(link);
+                    for (int i = 0; i < device.connections.Count; i++)
+                    {
+                        Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], router);
+                        linkIndex += 1;
+                        router.addLink(link);
+                    }
 
-            computers.Add(computer);
-            routingIndexToDevice.Add(routingIndex, computer);
-            deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
-            routingIndex += 1;
+                    if (device.firewall)
+                    {
+                        Firewall firewall = new Firewall(firewallIndex, device.firewallTimeToProcess, router);
+                        firewallIndex += 1;
+                        model.firewalls.Add(firewall);
+                        router.setFirewall(firewall);
+                    }
 
-            computer = new Computer(3, routingIndex);
-
-            link = new Link(8, 1, 3, computer);
-            computer.addLink(link);
-
-            computers.Add(computer);
-            routingIndexToDevice.Add(routingIndex, computer);
-            deviceIndexToRoutingIndex.Add(computer.ID, routingIndex);
-            routingIndex += 1;
-            
-            return computers;
-        }
-
-        public static List<Firewall> getFirewalls(List<Router> routers)
-        {
-            Router router = routers[0];
-            List<Firewall> firewalls = new List<Firewall>();
-            Firewall firewall = new Firewall(4, 1, router);
-            firewalls.Add(firewall);
-            router.setFirewall(firewall);
-            return firewalls;
+                    model.routers.Add(router);
+                    routingIndexToDevice.Add(deviceIndexToRoutingIndex[router.ID], router);
+                }
+            }
         }
 
         public static int[,] getRouting()
         {
             int[,] routing_table = {
                 { 0, 1, 2 },
-                { 1, 1, 0 },
-                { 2, 0, 2 }
+                { 0, 1, 0 },
+                { 0, 0, 2 }
             };
             return routing_table;
+        }
+
+        public static void initializeRoutingTables(Model model, ListBox devices)
+        {
+            int[,] routingTableSuccesors = new int[devices.Items.Count, devices.Items.Count];
+            ulong[,] routingTableWeights = new ulong[devices.Items.Count, devices.Items.Count];
+            
+            for (int i = 0; i < devices.Items.Count; i++)
+            {
+                for (int j = 0; j < devices.Items.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        routingTableSuccesors[i, j] = i;
+                        routingTableWeights[i, j] = 0;
+                    }
+                    else
+                    {
+                        routingTableSuccesors[i, j] = -1;
+                        // Each connections' transfer time is limited by int.MaxValue, the number of possible indices for devices
+                        // is also limited by int.MaxValue, and because int.MaxValue * int.MaxValue < ulong.MaxValue, this is safe
+                        routingTableWeights[i, j] = ulong.MaxValue;
+                    }
+                }
+            }
+
+            foreach (FormDevice device in devices.Items)
+            {
+                int sourceIndex = deviceIndexToRoutingIndex[device.ID];
+
+                for (int i = 0; i < device.connections.Count; i++)
+                {
+                    FormDevice connectedDevice = device.connections[i];
+                    int destinationIndex = deviceIndexToRoutingIndex[connectedDevice.ID];
+                    routingTableSuccesors[sourceIndex, destinationIndex] = destinationIndex;
+                    routingTableWeights[sourceIndex, destinationIndex] = (ulong)device.transferTimes[i];
+                }
+            }
+
+            model.routingTable = routingTableSuccesors;
+            model.routingTableWeights = routingTableWeights;
+        }
+
+        public static void assignRoutingIndices(ListBox devices)
+        {
+            foreach (FormDevice device in devices.Items)
+            {
+                deviceIndexToRoutingIndex.Add(device.ID, routingIndex);
+                routingIndexToDeviceIndex.Add(routingIndex, device.ID);
+                routingIndex += 1;
+            }
+        }
+
+        public static void updateResults(Statistics statistics, TextBox simulationLength, TextBox packetsSent, TextBox packetsDelivered, TextBox packetsSentMalicious, 
+            TextBox packetsDeliveredMalicious, TextBox averageTimeDelivered, TextBox averageAttempts)
+        {
+            changeText(simulationLength, statistics.lengthOfSimulation.ToString());
+            changeText(packetsSent, statistics.sentPackets.ToString());
+            changeText(packetsDelivered, statistics.deliveredPackets.ToString());
+            changeText(packetsSentMalicious, statistics.sentPacketsMalicious.ToString());
+            changeText(packetsDeliveredMalicious, statistics.deliveredPacketsMalicious.ToString());
+            changeText(averageTimeDelivered, statistics.getAverageDeliveryTime().ToString());
+            changeText(averageAttempts, statistics.getAverageNumberAttempts().ToString());
+        }
+
+        public static void changeText(TextBox output, string text)
+        {
+            if (output.InvokeRequired)
+            {
+                var d = new SafeCallDelegate(changeText);
+                output.Invoke(d, new object[] { output, text });
+            }
+            else
+            {
+                output.Text = text;
+            }
+        }
+
+        public static void enableInput(Panel panelInput)
+        {
+            if (panelInput.InvokeRequired)
+            {
+                var d = new SafeCallDelegateInput(enableInput);
+                panelInput.Invoke(d, new object[] { panelInput });
+            }
+            else
+            {
+                panelInput.Enabled = true;
+            }
         }
 
         // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
@@ -573,9 +703,10 @@ namespace semestralka_routing_simulation
             return (ulong)randNormal;
         }
  
-        public static void generatePackets(List<Computer> computers, Scheduler scheduler, ulong totalPackets, ulong maxTime, double maliciousProbability, Statistics statistics, Distribution distribution)
+        public static void generatePackets(List<Computer> computers, Scheduler scheduler, ulong totalPackets, ulong maxTime, double maliciousProbability, 
+            Statistics statistics, Distribution distribution, int randomSeed)
         {
-            Random rnd = new Random(123);
+            Random rnd = new Random(randomSeed);
 
             ulong i = 0;
             while (i < totalPackets)
@@ -585,10 +716,7 @@ namespace semestralka_routing_simulation
                 ulong when = 0;
                 bool malicious = rnd.NextDouble() < maliciousProbability;
 
-                if (malicious)
-                {
-                    statistics.sentPacketsMalicious += 1;
-                }
+                if (from == to) continue;
 
                 if (distribution == Distribution.Uniform)
                 {
@@ -598,8 +726,6 @@ namespace semestralka_routing_simulation
                 {
                     when = getNextGaussian(maxTime, rnd);
                 }
-
-                if (from == to) continue;
 
                 Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1, malicious);
                 computers[from].addPacketOut(packet);
@@ -623,30 +749,66 @@ namespace semestralka_routing_simulation
             return BitConverter.ToUInt64(buffer, 0) % (maxValue + 1);
         }
 
-        public static void RunSimulation()
+        public static void RunSimulation(ListBox devices, NumericUpDown totalPackets, NumericUpDown maxTime, RadioButton distributionUniform, 
+            NumericUpDown probabilityMalicious, NumericUpDown timeoutAttempts, NumericUpDown timeout, NumericUpDown randomSeed,
+            TextBox simulationLength, TextBox packetsSent, TextBox packetsDelivered, TextBox packetsSentMalicious,
+            TextBox packetsDeliveredMalicious, TextBox averageTimeDelivered, TextBox averageAttempts, Panel panelInput)
         {
             Debug.WriteLine("Simulation started");
 
-            ulong timeout = 10;
-            // How many times PC tries to resend a packet if timeout occurs
-            int timeoutAttempts = 3;
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
-            Model model = new Model(scheduler, timeout, timeoutAttempts, statistics);
+            Model model = new Model(scheduler, (ulong)timeout.Value, (int)timeoutAttempts.Value, statistics);
+
+            Distribution distribution;
+            if (distributionUniform.Checked)
+            {
+                distribution = Distribution.Uniform;
+            }
+            else
+            {
+                distribution = Distribution.DiscreteGaussian;
+            }
+
+            assignRoutingIndices(devices);
+            extractDevices(model, devices);
+            initializeRoutingTables(model, devices);
+            generatePackets(model.computers, scheduler, (ulong)totalPackets.Value, (ulong)maxTime.Value, (double)probabilityMalicious.Value, 
+                statistics, distribution, (int)randomSeed.Value);
+
+            // TODO remove this line when Floyd-Warshall is implemented
+            model.routingTable = getRouting();
+
             SimulationEvent simEvent = scheduler.GetFirst();
+            ulong lastTime = 0;
             while (simEvent != null)
             {
                 model.time = simEvent.time;
                 simEvent.execute(model);
                 simEvent = scheduler.GetFirst();
+                if (model.time != lastTime)
+                {
+                    statistics.lengthOfSimulation = model.time;
+                    updateResults(statistics, simulationLength, packetsSent, packetsDelivered, packetsSentMalicious, packetsDeliveredMalicious, 
+                        averageTimeDelivered, averageAttempts);
+                    lastTime = model.time;
+                }
             }
-            statistics.lengthOfSimulation = model.time;
 
             Debug.WriteLine($"Length of simulation: {statistics.lengthOfSimulation}");
             Debug.WriteLine($"Sent / delivered packets: {statistics.sentPackets} / {statistics.deliveredPackets}");
             Debug.WriteLine($"Sent / delivered malicious packets: {statistics.sentPacketsMalicious} / {statistics.deliveredPacketsMalicious}");
             Debug.WriteLine($"Average time of delivery: {statistics.getAverageDeliveryTime()}");
             Debug.WriteLine($"Average number of attempts: {statistics.getAverageNumberAttempts()}");
+
+            routingIndex = 0;
+            linkIndex = 1;
+            firewallIndex = 1;
+            routingIndexToDevice = new Dictionary<int, Device>();
+            deviceIndexToRoutingIndex = new Dictionary<int, int>();
+            routingIndexToDeviceIndex = new Dictionary<int, int>();
+
+            enableInput(panelInput);
         }
     }
 
