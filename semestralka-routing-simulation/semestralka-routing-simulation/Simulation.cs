@@ -172,14 +172,32 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public static int[,] getRouting()
+        public static void getRouting(Model model)
         {
-            int[,] routing_table = {
-                { 0, 1, 2 },
-                { 0, 1, 0 },
-                { 0, 0, 2 }
-            };
-            return routing_table;
+            int[,] routingTableSuccessors = model.routingTable;
+            ulong[,] routingTableWeights = model.routingTableWeights;
+
+            int n = routingTableSuccessors.GetLength(1);
+            for (int k = 0; k < n; k++)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        // Prevent overflow
+                        if (routingTableWeights[i, k] != ulong.MaxValue && routingTableWeights[k, j] != ulong.MaxValue)
+                        {
+                            ulong originalWeight = routingTableWeights[i, j];
+                            ulong newWeight = routingTableWeights[i, k] + routingTableWeights[k, j];
+                            if (newWeight < originalWeight)
+                            {
+                                routingTableWeights[i,j] = newWeight;
+                                routingTableSuccessors[i,j] = routingTableSuccessors[i, k];
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public static void initializeRoutingTables(Model model, ListBox.ObjectCollection devices)
@@ -280,6 +298,22 @@ namespace semestralka_routing_simulation
             routingIndexToDeviceIndex = new Dictionary<int, int>();
         }
 
+        public static bool checkGraphConnectivity(int[,] routingTableSuccessors)
+        {
+            for (int i = 0; i < routingTableSuccessors.GetLength(1); i++)
+            {
+                for (int j = 0; j < routingTableSuccessors.GetLength(1); j++)
+                {
+                    if (routingTableSuccessors[i,j] == -1)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
         public static ulong getNextGaussian(ulong maxTime, Random rnd)
         {
@@ -366,11 +400,19 @@ namespace semestralka_routing_simulation
             assignRoutingIndices(simulationParameters.devices);
             extractDevices(model, simulationParameters.devices);
             initializeRoutingTables(model, simulationParameters.devices);
+            getRouting(model);
+
+            if (!checkGraphConnectivity(model.routingTable))
+            {
+                MessageBox.Show("Some devices are unreachable.", "Devices unreachable", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.WriteLine($"Network is not connected");
+                resetSimulationParameters();
+                enableInput(panelInput);
+                return;
+            }
+
             generatePackets(model.computers, scheduler, simulationParameters.totalPackets, simulationParameters.sendUntil, simulationParameters.probabilityMalicious, 
                 statistics, distribution, simulationParameters.randomSeed);
-
-            // TODO remove this line when Floyd-Warshall is implemented
-            model.routingTable = getRouting();
 
             SimulationEvent simEvent = scheduler.GetFirst();
             ulong lastTime = 0;
