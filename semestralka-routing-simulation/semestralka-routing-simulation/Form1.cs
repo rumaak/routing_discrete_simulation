@@ -53,7 +53,8 @@ namespace semestralka_routing_simulation
                 averageAttempts = textBoxAverageAttempts
             };
 
-            Simulation.RunSimulation(simulationParameters, controls, panelInput);
+            Simulation simulation = new Simulation();
+            simulation.run(simulationParameters, controls, panelInput);
         }
 
         private void button1_Click(object sender, EventArgs e)

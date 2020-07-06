@@ -77,9 +77,9 @@ namespace semestralka_routing_simulation
 
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
-                    int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
-                    int nextHopRoutingIndex = model.routingTable[sourceDevice.routingTableIndex, destinationRoutingIndex];
-                    Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+                    int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
+                    int nextHopRoutingIndex = model.routing.routingTableSuccessors[sourceDevice.routingTableIndex, destinationRoutingIndex];
+                    Device nextHopDevice = model.routing.routingIndexToDevice[nextHopRoutingIndex];
 
                     SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ProcessPacket);
                     model.scheduler.Add(receiveEvent);
@@ -190,9 +190,9 @@ namespace semestralka_routing_simulation
         }
         protected Link getLink(Packet packet, Model model)
         {
-            int destinationRoutingIndex = Simulation.deviceIndexToRoutingIndex[packet.destination];
-            int nextHopRoutingIndex = model.routingTable[routingTableIndex, destinationRoutingIndex];
-            Device nextHopDevice = Simulation.routingIndexToDevice[nextHopRoutingIndex];
+            int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
+            int nextHopRoutingIndex = model.routing.routingTableSuccessors[routingTableIndex, destinationRoutingIndex];
+            Device nextHopDevice = model.routing.routingIndexToDevice[nextHopRoutingIndex];
 
             Link link = null;
             foreach (Link l in links)

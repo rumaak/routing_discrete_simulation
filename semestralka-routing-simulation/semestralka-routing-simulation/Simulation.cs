@@ -94,47 +94,37 @@ namespace semestralka_routing_simulation
     class Model
     {
         public ulong time, timeout;
-        public int timeoutAttempts;
+        public int timeoutAttempts, linkIndex, firewallIndex;
         public List<Router> routers;
         public List<Computer> computers;
         public List<Firewall> firewalls;
         public Scheduler scheduler;
-        public int[,] routingTable;
-        public ulong[,] routingTableWeights;
         public Statistics statistics;
+        public Routing routing;
 
-        public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts, Statistics statistics)
+        public Model(Scheduler scheduler, ulong timeout, int timeoutAttempts, Statistics statistics, Routing routing)
         {
             time = 0;
             routers = new List<Router>();
             computers = new List<Computer>();
             firewalls = new List<Firewall>();
-            
+            linkIndex = 1;
+            firewallIndex = 1;
+
             this.scheduler = scheduler;
             this.timeout = timeout;
             this.timeoutAttempts = timeoutAttempts;
             this.statistics = statistics;
+            this.routing = routing;
         }
-    }
-    
-    static class Simulation
-    {
-        public delegate void SafeCallDelegate(TextBox output, string text);
-        public delegate void SafeCallDelegateInput(Panel panelInput);
-        public static int routingIndex = 0;
-        public static int linkIndex = 1;
-        public static int firewallIndex = 1;
-        public static Dictionary<int, Device> routingIndexToDevice = new Dictionary<int, Device>(); 
-        public static Dictionary<int, int> deviceIndexToRoutingIndex = new Dictionary<int, int>();
-        public static Dictionary<int, int> routingIndexToDeviceIndex = new Dictionary<int, int>();
 
-        public static void extractDevices(Model model, ListBox.ObjectCollection devices)
+        public void extractDevices(ListBox.ObjectCollection devices)
         {
             foreach (FormDevice device in devices)
             {
                 if (device.deviceType == DeviceType.Computer)
                 {
-                    Computer computer = new Computer(device.ID, deviceIndexToRoutingIndex[device.ID]);
+                    Computer computer = new Computer(device.ID, routing.deviceIndexToRoutingIndex[device.ID]);
 
                     for (int i = 0; i < device.connections.Count; i++)
                     {
@@ -144,12 +134,12 @@ namespace semestralka_routing_simulation
 
                     }
 
-                    model.computers.Add(computer);
-                    routingIndexToDevice.Add(deviceIndexToRoutingIndex[computer.ID], computer);
+                    computers.Add(computer);
+                    routing.routingIndexToDevice.Add(routing.deviceIndexToRoutingIndex[computer.ID], computer);
                 }
                 else
                 {
-                    Router router = new Router(device.ID, device.timeToProcess, deviceIndexToRoutingIndex[device.ID]);
+                    Router router = new Router(device.ID, device.timeToProcess, routing.deviceIndexToRoutingIndex[device.ID]);
 
                     for (int i = 0; i < device.connections.Count; i++)
                     {
@@ -162,199 +152,47 @@ namespace semestralka_routing_simulation
                     {
                         Firewall firewall = new Firewall(firewallIndex, device.firewallTimeToProcess, router);
                         firewallIndex += 1;
-                        model.firewalls.Add(firewall);
+                        firewalls.Add(firewall);
                         router.setFirewall(firewall);
                     }
 
-                    model.routers.Add(router);
-                    routingIndexToDevice.Add(deviceIndexToRoutingIndex[router.ID], router);
+                    routers.Add(router);
+                    routing.routingIndexToDevice.Add(routing.deviceIndexToRoutingIndex[router.ID], router);
                 }
             }
         }
 
-        public static void getRouting(Model model)
+        public void generatePackets(SimulationParametersDto simulationParameters)
         {
-            int[,] routingTableSuccessors = model.routingTable;
-            ulong[,] routingTableWeights = model.routingTableWeights;
+            Random rnd = new Random(simulationParameters.randomSeed);
 
-            int n = routingTableSuccessors.GetLength(1);
-            for (int k = 0; k < n; k++)
+            Distribution distribution;
+            if (simulationParameters.distributionUniform)
             {
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        // Prevent overflow
-                        if (routingTableWeights[i, k] != ulong.MaxValue && routingTableWeights[k, j] != ulong.MaxValue)
-                        {
-                            ulong originalWeight = routingTableWeights[i, j];
-                            ulong newWeight = routingTableWeights[i, k] + routingTableWeights[k, j];
-                            if (newWeight < originalWeight)
-                            {
-                                routingTableWeights[i,j] = newWeight;
-                                routingTableSuccessors[i,j] = routingTableSuccessors[i, k];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void initializeRoutingTables(Model model, ListBox.ObjectCollection devices)
-        {
-            int[,] routingTableSuccesors = new int[devices.Count, devices.Count];
-            ulong[,] routingTableWeights = new ulong[devices.Count, devices.Count];
-            
-            for (int i = 0; i < devices.Count; i++)
-            {
-                for (int j = 0; j < devices.Count; j++)
-                {
-                    if (i == j)
-                    {
-                        routingTableSuccesors[i, j] = i;
-                        routingTableWeights[i, j] = 0;
-                    }
-                    else
-                    {
-                        routingTableSuccesors[i, j] = -1;
-                        // Each connections' transfer time is limited by int.MaxValue, the number of possible indices for devices
-                        // is also limited by int.MaxValue, and because int.MaxValue * int.MaxValue < ulong.MaxValue, this is safe
-                        routingTableWeights[i, j] = ulong.MaxValue;
-                    }
-                }
-            }
-
-            foreach (FormDevice device in devices)
-            {
-                int sourceIndex = deviceIndexToRoutingIndex[device.ID];
-
-                for (int i = 0; i < device.connections.Count; i++)
-                {
-                    FormDevice connectedDevice = device.connections[i];
-                    int destinationIndex = deviceIndexToRoutingIndex[connectedDevice.ID];
-                    routingTableSuccesors[sourceIndex, destinationIndex] = destinationIndex;
-                    routingTableWeights[sourceIndex, destinationIndex] = (ulong)device.transferTimes[i];
-                }
-            }
-
-            model.routingTable = routingTableSuccesors;
-            model.routingTableWeights = routingTableWeights;
-        }
-
-        public static void assignRoutingIndices(ListBox.ObjectCollection devices)
-        {
-            foreach (FormDevice device in devices)
-            {
-                deviceIndexToRoutingIndex.Add(device.ID, routingIndex);
-                routingIndexToDeviceIndex.Add(routingIndex, device.ID);
-                routingIndex += 1;
-            }
-        }
-
-        public static void updateResults(Statistics statistics, ResultControls controls)
-        {
-            changeText(controls.simulationLength, statistics.lengthOfSimulation.ToString());
-            changeText(controls.packetsSent, statistics.sentPackets.ToString());
-            changeText(controls.packetsDelivered, statistics.deliveredPackets.ToString());
-            changeText(controls.packetsSentMalicious, statistics.sentPacketsMalicious.ToString());
-            changeText(controls.packetsDeliveredMalicious, statistics.deliveredPacketsMalicious.ToString());
-            changeText(controls.averageTimeDelivered, statistics.getAverageDeliveryTime().ToString());
-            changeText(controls.averageAttempts, statistics.getAverageNumberAttempts().ToString());
-        }
-
-        public static void changeText(TextBox output, string text)
-        {
-            if (output.InvokeRequired)
-            {
-                var d = new SafeCallDelegate(changeText);
-                output.Invoke(d, new object[] { output, text });
+                distribution = Distribution.Uniform;
             }
             else
             {
-                output.Text = text;
+                distribution = Distribution.DiscreteGaussian;
             }
-        }
-
-        public static void enableInput(Panel panelInput)
-        {
-            if (panelInput.InvokeRequired)
-            {
-                var d = new SafeCallDelegateInput(enableInput);
-                panelInput.Invoke(d, new object[] { panelInput });
-            }
-            else
-            {
-                panelInput.Enabled = true;
-            }
-        }
-
-        public static void resetSimulationParameters()
-        {
-            routingIndex = 0;
-            linkIndex = 1;
-            firewallIndex = 1;
-            routingIndexToDevice = new Dictionary<int, Device>();
-            deviceIndexToRoutingIndex = new Dictionary<int, int>();
-            routingIndexToDeviceIndex = new Dictionary<int, int>();
-        }
-
-        public static bool checkGraphConnectivity(int[,] routingTableSuccessors)
-        {
-            for (int i = 0; i < routingTableSuccessors.GetLength(1); i++)
-            {
-                for (int j = 0; j < routingTableSuccessors.GetLength(1); j++)
-                {
-                    if (routingTableSuccessors[i,j] == -1)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
-        public static ulong getNextGaussian(ulong maxTime, Random rnd)
-        {
-            // When generated numbers gets out of bounds, regenerate
-            double randNormal = -1;
-            while (randNormal < 0 || randNormal > maxTime)
-            {
-                double mean = ((double)maxTime) / 2;
-                double std = ((double)maxTime) / 4;
-
-                double u1 = 1.0 - rnd.NextDouble();
-                double u2 = 1.0 - rnd.NextDouble();
-                double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-                randNormal = mean + std * randStdNormal;
-            }
-
-            return (ulong)randNormal;
-        }
- 
-        public static void generatePackets(List<Computer> computers, Scheduler scheduler, ulong totalPackets, ulong maxTime, double maliciousProbability, 
-            Statistics statistics, Distribution distribution, int randomSeed)
-        {
-            Random rnd = new Random(randomSeed);
 
             ulong i = 0;
-            while (i < totalPackets)
+            while (i < simulationParameters.totalPackets)
             {
                 int from = rnd.Next(computers.Count);
                 int to = rnd.Next(computers.Count);
                 ulong when = 0;
-                bool malicious = rnd.NextDouble() < maliciousProbability;
+                bool malicious = rnd.NextDouble() < simulationParameters.probabilityMalicious;
 
                 if (from == to) continue;
 
                 if (distribution == Distribution.Uniform)
                 {
-                    when = Get64BitRandom(maxTime, rnd);
+                    when = Helpers.getNextUniform(simulationParameters.sendUntil, rnd);
                 }
                 else if (distribution == Distribution.DiscreteGaussian)
                 {
-                    when = getNextGaussian(maxTime, rnd);
+                    when = Helpers.getNextGaussian(simulationParameters.sendUntil, rnd);
                 }
 
                 Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1, malicious);
@@ -371,48 +209,73 @@ namespace semestralka_routing_simulation
                 i += 1;
             }
         }
-        
-        public static ulong Get64BitRandom(ulong maxValue, Random rnd)
+    }
+    
+    class Simulation
+    {
+        public delegate void SafeCallDelegateTextBox(TextBox output, string text);
+        public delegate void SafeCallDelegatePanel(Panel panelInput);
+
+        private void updateResults(Statistics statistics, ResultControls controls)
         {
-            byte[] buffer = new byte[sizeof(ulong)];
-            rnd.NextBytes(buffer);
-            return BitConverter.ToUInt64(buffer, 0) % (maxValue + 1);
+            changeText(controls.simulationLength, statistics.lengthOfSimulation.ToString());
+            changeText(controls.packetsSent, statistics.sentPackets.ToString());
+            changeText(controls.packetsDelivered, statistics.deliveredPackets.ToString());
+            changeText(controls.packetsSentMalicious, statistics.sentPacketsMalicious.ToString());
+            changeText(controls.packetsDeliveredMalicious, statistics.deliveredPacketsMalicious.ToString());
+            changeText(controls.averageTimeDelivered, statistics.getAverageDeliveryTime().ToString());
+            changeText(controls.averageAttempts, statistics.getAverageNumberAttempts().ToString());
         }
 
-        public static void RunSimulation(SimulationParametersDto simulationParameters, ResultControls controls, Panel panelInput)
+        private void changeText(TextBox output, string text)
+        {
+            if (output.InvokeRequired)
+            {
+                var d = new SafeCallDelegateTextBox(changeText);
+                output.Invoke(d, new object[] { output, text });
+            }
+            else
+            {
+                output.Text = text;
+            }
+        }
+
+        private void enableInput(Panel panelInput)
+        {
+            if (panelInput.InvokeRequired)
+            {
+                var d = new SafeCallDelegatePanel(enableInput);
+                panelInput.Invoke(d, new object[] { panelInput });
+            }
+            else
+            {
+                panelInput.Enabled = true;
+            }
+        }
+
+        public void run(SimulationParametersDto simulationParameters, ResultControls controls, Panel panelInput)
         {
             Debug.WriteLine("Simulation started");
 
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
-            Model model = new Model(scheduler, simulationParameters.timeout, simulationParameters.numberAttempts, statistics);
+            Routing routing = new Routing(simulationParameters.devices);
+            Model model = new Model(scheduler, simulationParameters.timeout, simulationParameters.numberAttempts, statistics, routing);
 
-            Distribution distribution;
-            if (simulationParameters.distributionUniform)
-            {
-                distribution = Distribution.Uniform;
-            }
-            else
-            {
-                distribution = Distribution.DiscreteGaussian;
-            }
+            routing.assignRoutingIndices();
+            model.extractDevices(simulationParameters.devices);
+            routing.initializeRoutingTables();
+            routing.computeRoutingTables();
 
-            assignRoutingIndices(simulationParameters.devices);
-            extractDevices(model, simulationParameters.devices);
-            initializeRoutingTables(model, simulationParameters.devices);
-            getRouting(model);
-
-            if (!checkGraphConnectivity(model.routingTable))
+            if (routing.existsUnreachable())
             {
                 MessageBox.Show("Some devices are unreachable.", "Devices unreachable", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Debug.WriteLine($"Network is not connected");
-                resetSimulationParameters();
+                Debug.WriteLine($"Some devices are unreachable");
                 enableInput(panelInput);
                 return;
             }
 
-            generatePackets(model.computers, scheduler, simulationParameters.totalPackets, simulationParameters.sendUntil, simulationParameters.probabilityMalicious, 
-                statistics, distribution, simulationParameters.randomSeed);
+            model.generatePackets(simulationParameters);
 
             SimulationEvent simEvent = scheduler.GetFirst();
             ulong lastTime = 0;
@@ -435,8 +298,117 @@ namespace semestralka_routing_simulation
             Debug.WriteLine($"Average time of delivery: {statistics.getAverageDeliveryTime()}");
             Debug.WriteLine($"Average number of attempts: {statistics.getAverageNumberAttempts()}");
 
-            resetSimulationParameters();
             enableInput(panelInput);
+        }
+    }
+
+    class Routing
+    {
+        private int routingIndex;
+        public int[,] routingTableSuccessors;
+        public ulong[,] routingTableWeights;
+        public Dictionary<int, int> deviceIndexToRoutingIndex;
+        public Dictionary<int, int> routingIndexToDeviceIndex;
+        public Dictionary<int, Device> routingIndexToDevice;
+        private ListBox.ObjectCollection devices;
+
+        public Routing (ListBox.ObjectCollection devices)
+        {
+            routingIndex = 0;
+            routingTableSuccessors = new int[devices.Count, devices.Count];
+            routingTableWeights = new ulong[devices.Count, devices.Count];
+            deviceIndexToRoutingIndex = new Dictionary<int, int>();
+            routingIndexToDeviceIndex = new Dictionary<int, int>();
+            routingIndexToDevice = new Dictionary<int, Device>();
+
+            this.devices = devices;
+        }
+
+        public void assignRoutingIndices()
+        {
+            foreach (FormDevice device in devices)
+            {
+                deviceIndexToRoutingIndex.Add(device.ID, routingIndex);
+                routingIndexToDeviceIndex.Add(routingIndex, device.ID);
+                routingIndex += 1;
+            }
+        }
+
+        public void initializeRoutingTables()
+        {
+
+            for (int i = 0; i < devices.Count; i++)
+            {
+                for (int j = 0; j < devices.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        routingTableSuccessors[i, j] = i;
+                        routingTableWeights[i, j] = 0;
+                    }
+                    else
+                    {
+                        routingTableSuccessors[i, j] = -1;
+                        // Each connections' transfer time is limited by int.MaxValue, the number of possible indices for devices
+                        // is also limited by int.MaxValue, and because int.MaxValue * int.MaxValue < ulong.MaxValue, this is safe
+                        routingTableWeights[i, j] = ulong.MaxValue;
+                    }
+                }
+            }
+
+            foreach (FormDevice device in devices)
+            {
+                int sourceIndex = deviceIndexToRoutingIndex[device.ID];
+
+                for (int i = 0; i < device.connections.Count; i++)
+                {
+                    FormDevice connectedDevice = device.connections[i];
+                    int destinationIndex = deviceIndexToRoutingIndex[connectedDevice.ID];
+                    routingTableSuccessors[sourceIndex, destinationIndex] = destinationIndex;
+                    routingTableWeights[sourceIndex, destinationIndex] = (ulong)device.transferTimes[i];
+                }
+            }
+        }
+
+        public void computeRoutingTables()
+        {
+            int n = routingTableSuccessors.GetLength(1);
+            for (int k = 0; k < n; k++)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        // Prevent overflow
+                        if (routingTableWeights[i, k] != ulong.MaxValue && routingTableWeights[k, j] != ulong.MaxValue)
+                        {
+                            ulong originalWeight = routingTableWeights[i, j];
+                            ulong newWeight = routingTableWeights[i, k] + routingTableWeights[k, j];
+                            if (newWeight < originalWeight)
+                            {
+                                routingTableWeights[i, j] = newWeight;
+                                routingTableSuccessors[i, j] = routingTableSuccessors[i, k];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool existsUnreachable()
+        {
+            for (int i = 0; i < routingTableSuccessors.GetLength(1); i++)
+            {
+                for (int j = 0; j < routingTableSuccessors.GetLength(1); j++)
+                {
+                    if (routingTableSuccessors[i, j] == -1)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 
