@@ -313,11 +313,14 @@ namespace semestralka_routing_simulation
     {
 
         List<Packet> packetsSent;
+        public bool malicious;
 
-        public Computer(int id, int routingTableIndex)
+        public Computer(int id, int routingTableIndex, bool malicious)
         {
             this.ID = id;
             this.routingTableIndex = routingTableIndex;
+            this.malicious = malicious;
+
             packetsIn = new List<Packet>();
             packetsOut = new List<Packet>();
             packetsSent = new List<Packet>();

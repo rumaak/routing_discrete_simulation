@@ -124,7 +124,7 @@ namespace semestralka_routing_simulation
             {
                 if (device.deviceType == DeviceType.Computer)
                 {
-                    Computer computer = new Computer(device.ID, routing.deviceIndexToRoutingIndex[device.ID]);
+                    Computer computer = new Computer(device.ID, routing.deviceIndexToRoutingIndex[device.ID], device.malicious);
 
                     for (int i = 0; i < device.connections.Count; i++)
                     {
@@ -182,9 +182,14 @@ namespace semestralka_routing_simulation
                 int from = rnd.Next(computers.Count);
                 int to = rnd.Next(computers.Count);
                 ulong when = 0;
-                bool malicious = rnd.NextDouble() < simulationParameters.ProbabilityMalicious;
 
                 if (from == to) continue;
+
+                bool malicious = false;
+                if (computers[from].malicious)
+                {
+                    malicious = rnd.NextDouble() < simulationParameters.ProbabilityMalicious;
+                }
 
                 if (distribution == Distribution.Uniform)
                 {

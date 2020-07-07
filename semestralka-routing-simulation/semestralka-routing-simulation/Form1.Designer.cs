@@ -79,6 +79,7 @@
             this.textBoxPacketsSentMalicious = new System.Windows.Forms.TextBox();
             this.textBoxPacketsSent = new System.Windows.Forms.TextBox();
             this.panelInput = new System.Windows.Forms.Panel();
+            this.checkBoxDeviceMalicious = new System.Windows.Forms.CheckBox();
             this.groupBoxDevices.SuspendLayout();
             this.groupBoxDeviceProperties.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDeviceTimeProcess)).BeginInit();
@@ -152,6 +153,7 @@
             // 
             // groupBoxDeviceProperties
             // 
+            this.groupBoxDeviceProperties.Controls.Add(this.checkBoxDeviceMalicious);
             this.groupBoxDeviceProperties.Controls.Add(this.numericUpDownDeviceTimeProcess);
             this.groupBoxDeviceProperties.Controls.Add(this.groupBoxDeviceFirewall);
             this.groupBoxDeviceProperties.Controls.Add(this.comboBoxDeviceType);
@@ -178,9 +180,9 @@
             this.groupBoxDeviceFirewall.Controls.Add(this.numericUpDownDeviceTimeProcessFirewall);
             this.groupBoxDeviceFirewall.Controls.Add(this.checkBoxDeviceFirewall);
             this.groupBoxDeviceFirewall.Controls.Add(this.label3);
-            this.groupBoxDeviceFirewall.Location = new System.Drawing.Point(355, 87);
+            this.groupBoxDeviceFirewall.Location = new System.Drawing.Point(355, 107);
             this.groupBoxDeviceFirewall.Name = "groupBoxDeviceFirewall";
-            this.groupBoxDeviceFirewall.Size = new System.Drawing.Size(255, 103);
+            this.groupBoxDeviceFirewall.Size = new System.Drawing.Size(255, 83);
             this.groupBoxDeviceFirewall.TabIndex = 10;
             this.groupBoxDeviceFirewall.TabStop = false;
             this.groupBoxDeviceFirewall.Text = "Firewall";
@@ -611,6 +613,17 @@
             this.panelInput.Size = new System.Drawing.Size(952, 447);
             this.panelInput.TabIndex = 17;
             // 
+            // checkBoxDeviceMalicious
+            // 
+            this.checkBoxDeviceMalicious.AutoSize = true;
+            this.checkBoxDeviceMalicious.Location = new System.Drawing.Point(455, 92);
+            this.checkBoxDeviceMalicious.Name = "checkBoxDeviceMalicious";
+            this.checkBoxDeviceMalicious.Size = new System.Drawing.Size(77, 19);
+            this.checkBoxDeviceMalicious.TabIndex = 18;
+            this.checkBoxDeviceMalicious.Text = "Malicious";
+            this.checkBoxDeviceMalicious.UseVisualStyleBackColor = true;
+            this.checkBoxDeviceMalicious.Click += new System.EventHandler(this.CheckBoxDeviceMalicious_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -700,6 +713,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDownTimeout;
         private System.Windows.Forms.NumericUpDown numericUpDownRandomSeed;
         private System.Windows.Forms.Panel panelInput;
+        private System.Windows.Forms.CheckBox checkBoxDeviceMalicious;
     }
 }
 
