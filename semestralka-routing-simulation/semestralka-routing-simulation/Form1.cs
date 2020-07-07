@@ -57,14 +57,14 @@ namespace semestralka_routing_simulation
             simulation.Run(simulationParameters, controls, panelInput);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ButtonStart_Click(object sender, EventArgs e)
         {
             panelInput.Enabled = false;
             Thread newThread = new Thread(new ThreadStart(StartSimulation));
             newThread.Start();
         }
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void ListBoxDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBoxDevices.SelectedItem is null)
             {
@@ -75,7 +75,7 @@ namespace semestralka_routing_simulation
             groupBoxDeviceProperties.Visible = true;
             buttonRemove.Enabled = true;
             listBoxDeviceConnections.Items.Clear();
-            FormDevice selectedDevice = (FormDevice) ((ListBox)sender).SelectedItem;
+            FormDevice selectedDevice = (FormDevice)((ListBox)sender).SelectedItem;
 
             // Update connected devices
             foreach (FormDevice device in listBoxDevices.Items)
@@ -124,7 +124,7 @@ namespace semestralka_routing_simulation
                 numericUpDownDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
             }
 
-            listBox2_SelectedIndexChanged(listBoxDeviceConnections, e);
+            ListBoxDeviceConnections_SelectedIndexChanged(listBoxDeviceConnections, e);
         }
 
         private void InitializeDevices()
@@ -181,7 +181,7 @@ namespace semestralka_routing_simulation
             numericUpDownTimeout.Minimum = 1;
         }
 
-        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        private void ListBoxDeviceConnections_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBoxDeviceConnections.SelectedItem is null)
             {
@@ -211,18 +211,18 @@ namespace semestralka_routing_simulation
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void ButtonAdd_Click(object sender, EventArgs e)
         {
             if (nextID < int.MaxValue)
             {
                 FormDevice device = new FormDevice(DeviceType.Computer, 1, false, 1, nextID);
                 nextID += 1;
                 listBoxDevices.Items.Add(device);
-                listBox1_SelectedIndexChanged(listBoxDevices, e);
+                ListBoxDevices_SelectedIndexChanged(listBoxDevices, e);
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void ButtonRemove_Click(object sender, EventArgs e)
         {
             FormDevice selectedDevice = (FormDevice)listBoxDevices.SelectedItem;
             // This removes this device from connections of other devices
@@ -235,8 +235,7 @@ namespace semestralka_routing_simulation
             buttonRemove.Enabled = false;
         }
 
-        // Actually used for click event
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void CheckBoxDeviceConnected_Click(object sender, EventArgs e)
         {
             FormDevice device1 = (FormDevice)listBoxDevices.SelectedItem;
             FormDevice device2 = (FormDevice)listBoxDeviceConnections.SelectedItem;
@@ -255,7 +254,7 @@ namespace semestralka_routing_simulation
             }
         }
 
-        private void numericUpDownDeviceTransferTime_ValueChanged(object sender, EventArgs e)
+        private void NumericUpDownDeviceTransferTime_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
             {
@@ -266,7 +265,7 @@ namespace semestralka_routing_simulation
             }
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboBoxDeviceType_SelectedIndexChanged(object sender, EventArgs e)
         {
             DeviceType dt = ((ComboBox)sender).SelectedIndex switch
             {
@@ -277,11 +276,11 @@ namespace semestralka_routing_simulation
 
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
             device.SetType(dt);
-            listBox1_SelectedIndexChanged(listBoxDevices, e);
+            ListBoxDevices_SelectedIndexChanged(listBoxDevices, e);
             listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)] = listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)];
         }
 
-        private void checkBox2_Click(object sender, EventArgs e)
+        private void CheckBoxDeviceFirewall_Click(object sender, EventArgs e)
         {
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
 
@@ -299,7 +298,7 @@ namespace semestralka_routing_simulation
             }
         }
         
-        private void numericUpDownDeviceTimeProcessFirewall_ValueChanged(object sender, EventArgs e)
+        private void NumericUpDownDeviceTimeProcessFirewall_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
             {
@@ -308,7 +307,7 @@ namespace semestralka_routing_simulation
             }
         }
 
-        private void numericUpDownDeviceTimeProcess_ValueChanged(object sender, EventArgs e)
+        private void NumericUpDownDeviceTimeProcess_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
             {
