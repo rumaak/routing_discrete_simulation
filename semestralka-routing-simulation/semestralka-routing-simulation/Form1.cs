@@ -23,44 +23,44 @@ namespace semestralka_routing_simulation
         {
             InitializeComponent();
             nextID = 1;
-            setInputLimits();
-            initializeDevices();
-            initializeSimulationParameters();
+            SetInputLimits();
+            InitializeDevices();
+            InitializeSimulationParameters();
         }
 
-        private void startSimulation()
+        private void StartSimulation()
         {
             SimulationParametersDto simulationParameters = new SimulationParametersDto()
             {
-                devices = listBoxDevices.Items,
-                totalPackets = (ulong)numericUpDownTotalPackets.Value,
-                sendUntil = (ulong)numericUpDownSendUntil.Value,
-                distributionUniform = radioButtonDistributionUniform.Checked,
-                probabilityMalicious = (double)numericUpDownProbabilityMalicious.Value,
-                numberAttempts = (int)numericUpDownNumberAttempts.Value,
-                timeout = (ulong)numericUpDownTimeout.Value,
-                randomSeed = (int)numericUpDownRandomSeed.Value
+                Devices = listBoxDevices.Items,
+                TotalPackets = (ulong)numericUpDownTotalPackets.Value,
+                SendUntil = (ulong)numericUpDownSendUntil.Value,
+                DistributionUniform = radioButtonDistributionUniform.Checked,
+                ProbabilityMalicious = (double)numericUpDownProbabilityMalicious.Value,
+                NumberAttempts = (int)numericUpDownNumberAttempts.Value,
+                Timeout = (ulong)numericUpDownTimeout.Value,
+                RandomSeed = (int)numericUpDownRandomSeed.Value
             };
 
             ResultControls controls = new ResultControls()
             {
-                simulationLength = textBoxSimulationLength,
-                packetsSent = textBoxPacketsSent,
-                packetsDelivered = textBoxPacketsDelivered,
-                packetsSentMalicious = textBoxPacketsSentMalicious,
-                packetsDeliveredMalicious = textBoxPacketsDeliveredMalicious,
-                averageTimeDelivered = textBoxAverageTimeDelivered,
-                averageAttempts = textBoxAverageAttempts
+                SimulationLength = textBoxSimulationLength,
+                PacketsSent = textBoxPacketsSent,
+                PacketsDelivered = textBoxPacketsDelivered,
+                PacketsSentMalicious = textBoxPacketsSentMalicious,
+                PacketsDeliveredMalicious = textBoxPacketsDeliveredMalicious,
+                AverageTimeDelivered = textBoxAverageTimeDelivered,
+                AverageAttempts = textBoxAverageAttempts
             };
 
             Simulation simulation = new Simulation();
-            simulation.run(simulationParameters, controls, panelInput);
+            simulation.Run(simulationParameters, controls, panelInput);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             panelInput.Enabled = false;
-            Thread newThread = new Thread(new ThreadStart(startSimulation));
+            Thread newThread = new Thread(new ThreadStart(StartSimulation));
             newThread.Start();
         }
 
@@ -127,7 +127,7 @@ namespace semestralka_routing_simulation
             listBox2_SelectedIndexChanged(listBoxDeviceConnections, e);
         }
 
-        private void initializeDevices()
+        private void InitializeDevices()
         {
             listBoxDevices.Items.Clear();
 
@@ -138,11 +138,11 @@ namespace semestralka_routing_simulation
             listBoxDevices.Items.Add(new FormDevice(DeviceType.Computer, 1, false, 1, nextID));
             nextID += 1;
 
-            ((FormDevice)listBoxDevices.Items[0]).addConnection((FormDevice) listBoxDevices.Items[1], 5);
-            ((FormDevice)listBoxDevices.Items[0]).addConnection((FormDevice) listBoxDevices.Items[2], 3);
+            ((FormDevice)listBoxDevices.Items[0]).AddConnection((FormDevice) listBoxDevices.Items[1], 5);
+            ((FormDevice)listBoxDevices.Items[0]).AddConnection((FormDevice) listBoxDevices.Items[2], 3);
         }
 
-        private void initializeSimulationParameters()
+        private void InitializeSimulationParameters()
         {
             ulong totalPackets = 5;
             ulong sendUntil = 100;
@@ -162,7 +162,7 @@ namespace semestralka_routing_simulation
             numericUpDownRandomSeed.Text = seed.ToString();
         }
 
-        private void setInputLimits()
+        private void SetInputLimits()
         {
             numericUpDownDeviceTransferTime.Maximum = int.MaxValue;
             numericUpDownDeviceTimeProcess.Maximum = int.MaxValue;
@@ -200,7 +200,7 @@ namespace semestralka_routing_simulation
             FormDevice selectedDevice = (FormDevice)listBoxDevices.SelectedItem;
             FormDevice selectedDeviceConnections = (FormDevice)((ListBox)sender).SelectedItem;
 
-            int transfer_time = selectedDevice.getTransferTime(selectedDeviceConnections);
+            int transfer_time = selectedDevice.GetTransferTime(selectedDeviceConnections);
             
             // non-positive transfer time indicates there is no link
             if (transfer_time > 0)
@@ -228,7 +228,7 @@ namespace semestralka_routing_simulation
             // This removes this device from connections of other devices
             while (selectedDevice.connections.Count != 0)
             {
-                selectedDevice.removeConnection(selectedDevice.connections[0]);
+                selectedDevice.RemoveConnection(selectedDevice.connections[0]);
             }
 
             listBoxDevices.Items.Remove(selectedDevice);
@@ -244,13 +244,13 @@ namespace semestralka_routing_simulation
             {
                 numericUpDownDeviceTransferTime.Enabled = true;
                 int timeToTransfer = 1;
-                device1.addConnection(device2, timeToTransfer);
+                device1.AddConnection(device2, timeToTransfer);
                 numericUpDownDeviceTransferTime.Text = timeToTransfer.ToString();
             }
             else
             {
                 numericUpDownDeviceTransferTime.Enabled = false;
-                device1.removeConnection(device2);
+                device1.RemoveConnection(device2);
                 numericUpDownDeviceTransferTime.Text = "";
             }
         }
@@ -262,26 +262,21 @@ namespace semestralka_routing_simulation
                 FormDevice device1 = (FormDevice)listBoxDevices.SelectedItem;
                 FormDevice device2 = (FormDevice)listBoxDeviceConnections.SelectedItem;
 
-                device1.changeTransferTime(device2, (int) ((NumericUpDown)sender).Value);
+                device1.ChangeTransferTime(device2, (int) ((NumericUpDown)sender).Value);
             }
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DeviceType dt;
-            switch (((ComboBox)sender).SelectedIndex)
+            DeviceType dt = ((ComboBox)sender).SelectedIndex switch
             {
-                case 0:
-                    dt = DeviceType.Router;
-                    break;
-                case 1:
-                default:
-                    dt = DeviceType.Computer;
-                    break;
-            }
+                0 => DeviceType.Router,
+                1 => DeviceType.Computer,
+                _ => DeviceType.Computer
+            };
 
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
-            device.setType(dt);
+            device.SetType(dt);
             listBox1_SelectedIndexChanged(listBoxDevices, e);
             listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)] = listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)];
         }
@@ -323,7 +318,7 @@ namespace semestralka_routing_simulation
         }
     }
 
-    class FormDevice
+   class FormDevice
     {
         public List<FormDevice> connections;
         public List<int> transferTimes;
@@ -345,7 +340,7 @@ namespace semestralka_routing_simulation
             transferTimes = new List<int>();
         }
 
-        public int getTransferTime(FormDevice device)
+        public int GetTransferTime(FormDevice device)
         {
             foreach (FormDevice connectedDevice in connections)
             {
@@ -359,7 +354,7 @@ namespace semestralka_routing_simulation
         }
 
         // Adds connection to both devices
-        public void addConnection(FormDevice device, int transferTime)
+        public void AddConnection(FormDevice device, int transferTime)
         {
             connections.Add(device);
             transferTimes.Add(transferTime);
@@ -369,7 +364,7 @@ namespace semestralka_routing_simulation
         }
 
         // Removes connection from both devices
-        public void removeConnection(FormDevice device)
+        public void RemoveConnection(FormDevice device)
         {
             int index = connections.IndexOf(device);
             connections.Remove(device);
@@ -381,7 +376,7 @@ namespace semestralka_routing_simulation
         }
 
         // Changes transferTime for both
-        public void changeTransferTime(FormDevice device, int transferTime)
+        public void ChangeTransferTime(FormDevice device, int transferTime)
         {
             int index = connections.IndexOf(device);
             transferTimes[index] = transferTime;
@@ -390,7 +385,7 @@ namespace semestralka_routing_simulation
             device.transferTimes[index] = transferTime;
         }
 
-        public void setType(DeviceType type)
+        public void SetType(DeviceType type)
         {
             if (deviceType == DeviceType.Router && type == DeviceType.Computer)
             {
@@ -414,24 +409,24 @@ namespace semestralka_routing_simulation
 
    class SimulationParametersDto
     {
-        public ListBox.ObjectCollection devices { get; set; }
-        public ulong totalPackets { get; set; }
-        public ulong sendUntil { get; set; }
-        public ulong timeout { get; set; }
-        public bool distributionUniform { get; set; }
-        public double probabilityMalicious { get; set; }
-        public int numberAttempts { get; set; }
-        public int randomSeed { get; set; }
+        public ListBox.ObjectCollection Devices { get; set; }
+        public ulong TotalPackets { get; set; }
+        public ulong SendUntil { get; set; }
+        public ulong Timeout { get; set; }
+        public bool DistributionUniform { get; set; }
+        public double ProbabilityMalicious { get; set; }
+        public int NumberAttempts { get; set; }
+        public int RandomSeed { get; set; }
     }
 
    class ResultControls
     {
-        public TextBox simulationLength { get; set; }
-        public TextBox packetsSent { get; set; }
-        public TextBox packetsDelivered { get; set; }
-        public TextBox packetsSentMalicious { get; set; }
-        public TextBox packetsDeliveredMalicious { get; set; }
-        public TextBox averageTimeDelivered { get; set; }
-        public TextBox averageAttempts { get; set; }
+        public TextBox SimulationLength { get; set; }
+        public TextBox PacketsSent { get; set; }
+        public TextBox PacketsDelivered { get; set; }
+        public TextBox PacketsSentMalicious { get; set; }
+        public TextBox PacketsDeliveredMalicious { get; set; }
+        public TextBox AverageTimeDelivered { get; set; }
+        public TextBox AverageAttempts { get; set; }
     }
 }

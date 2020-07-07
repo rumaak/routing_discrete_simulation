@@ -12,11 +12,11 @@ namespace semestralka_routing_simulation
         protected List<ulong> packetsOutTimeouts;
 
         public abstract void HandleEvent(SimulationEvent simEvent, Model model);
-        public void addPacketOut(Packet packetOut)
+        public void AddPacketOut(Packet packetOut)
         {
             packetsOut.Add(packetOut);
         }
-        public void addPacketOutTimeout(ulong timeout)
+        public void AddPacketOutTimeout(ulong timeout)
         {
             packetsOutTimeouts.Add(timeout);
         }
@@ -83,8 +83,8 @@ namespace semestralka_routing_simulation
 
                     SimulationEvent receiveEvent = new SimulationEvent(model.time, nextHopDevice, EventType.ProcessPacket);
                     model.scheduler.Add(receiveEvent);
-                    nextHopDevice.addPacketIn(packet);
-                    nextHopDevice.addPacketInTimeout(packet.timeout);
+                    nextHopDevice.AddPacketIn(packet);
+                    nextHopDevice.AddPacketInTimeout(packet.timeout);
                 }
                 else
                 {
@@ -102,7 +102,7 @@ namespace semestralka_routing_simulation
     {
         public int timeToProcess;
         public bool processing;
-        Router router;
+        private readonly Router router;
         public Firewall(int id, int timeToProcess, Router router)
         {
             this.ID = id;
@@ -158,8 +158,8 @@ namespace semestralka_routing_simulation
                 else
                 {
                     SimulationEvent sendPacket = new SimulationEvent(model.time, router, EventType.SendPacket);
-                    router.addPacketOut(packet);
-                    router.addPacketOutTimeout(packetTimeout);
+                    router.AddPacketOut(packet);
+                    router.AddPacketOutTimeout(packetTimeout);
                     model.scheduler.Add(sendPacket);
                 }
 
@@ -176,19 +176,19 @@ namespace semestralka_routing_simulation
         protected List<Packet> packetsIn;
         protected List<ulong> packetsInTimeouts;
 
-        public void addLink(Link link)
+        public void AddLink(Link link)
         {
             links.Add(link);
         }
-        public void addPacketIn(Packet packetIn)
+        public void AddPacketIn(Packet packetIn)
         {
             packetsIn.Add(packetIn);
         }
-        public void addPacketInTimeout(ulong timeout)
+        public void AddPacketInTimeout(ulong timeout)
         {
             packetsInTimeouts.Add(timeout);
         }
-        protected Link getLink(Packet packet, Model model)
+        protected Link GetLink(Packet packet, Model model)
         {
             int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
             int nextHopRoutingIndex = model.routing.routingTableSuccessors[routingTableIndex, destinationRoutingIndex];
@@ -226,7 +226,7 @@ namespace semestralka_routing_simulation
             firewall = null;
         }
 
-        public void setFirewall(Firewall firewall)
+        public void SetFirewall(Firewall firewall)
         {
             this.firewall = firewall;
         }
@@ -241,11 +241,11 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsOutTimeouts[0];
                 packetsOutTimeouts.RemoveAt(0);
 
-                Link link = getLink(packet, model);
+                Link link = GetLink(packet, model);
 
                 SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
-                link.addPacketOut(packet);
-                link.addPacketOutTimeout(packetTimeout);
+                link.AddPacketOut(packet);
+                link.AddPacketOutTimeout(packetTimeout);
                 model.scheduler.Add(sendPacket);
             }
             else if (simEvent.eventType == EventType.ProcessPacket)
@@ -286,15 +286,15 @@ namespace semestralka_routing_simulation
                     if (firewall != null)
                     {
                         SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
-                        firewall.addPacketOut(packet);
-                        firewall.addPacketOutTimeout(packetTimeout);
+                        firewall.AddPacketOut(packet);
+                        firewall.AddPacketOutTimeout(packetTimeout);
                         model.scheduler.Add(processPacket);
                     }
                     else
                     {
                         SimulationEvent sendPacket = new SimulationEvent(model.time, this, EventType.SendPacket);
-                        addPacketOut(packet);
-                        addPacketOutTimeout(packetTimeout);
+                        AddPacketOut(packet);
+                        AddPacketOutTimeout(packetTimeout);
                         model.scheduler.Add(sendPacket);
                     }
                 }
@@ -334,7 +334,7 @@ namespace semestralka_routing_simulation
 
                 packet.timeFirstSent = model.time;
 
-                sendPacket(packet, model);
+                SendPacket(packet, model);
 
                 model.statistics.sentPackets += 1;
                 if (packet.malicious)
@@ -385,7 +385,7 @@ namespace semestralka_routing_simulation
                 {
                     if (packet.attemptNumber < model.timeoutAttempts)
                     {
-                        sendPacket(packet, model);
+                        SendPacket(packet, model);
                         packet.attemptNumber += 1;
                     }
                     else
@@ -396,15 +396,15 @@ namespace semestralka_routing_simulation
 
             }
         }
-        private void sendPacket(Packet packet, Model model)
+        private void SendPacket(Packet packet, Model model)
         {
             packet.timeout = model.time + model.timeout;
 
-            Link link = getLink(packet, model);
+            Link link = GetLink(packet, model);
 
             SimulationEvent sendPacket = new SimulationEvent(model.time, link, EventType.SendPacket);
-            link.addPacketOut(packet);
-            link.addPacketOutTimeout(packet.timeout);
+            link.AddPacketOut(packet);
+            link.AddPacketOutTimeout(packet.timeout);
             model.scheduler.Add(sendPacket);
 
             // Adding a single tick because timeout is inclusive (i.e. if packet arrives precisely in time of timeout,

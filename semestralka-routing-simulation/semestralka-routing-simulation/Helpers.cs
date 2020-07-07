@@ -6,7 +6,7 @@ namespace semestralka_routing_simulation
 {
     static class Helpers
     {
-        public static ulong getNextUniform(ulong maxValue, Random rnd)
+        public static ulong GetNextUniform(ulong maxValue, Random rnd)
         {
             byte[] buffer = new byte[sizeof(ulong)];
             rnd.NextBytes(buffer);
@@ -14,7 +14,7 @@ namespace semestralka_routing_simulation
         }
 
         // Normal distribution with mean = maxTime / 2 and std = maxTime / 4
-        public static ulong getNextGaussian(ulong maxTime, Random rnd)
+        public static ulong GetNextGaussian(ulong maxTime, Random rnd)
         {
             // When generated numbers gets out of bounds, regenerate
             double randNormal = -1;
