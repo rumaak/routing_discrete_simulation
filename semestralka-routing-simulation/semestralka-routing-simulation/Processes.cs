@@ -1,29 +1,52 @@
-﻿using System;
+﻿// Discrete simulation of routing
+// Jan Ruman, 1st year of study
+// Summer term, 2019 / 2020
+// NPRG031
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
 namespace semestralka_routing_simulation
 {
+    /// <summary>
+    /// Class responsible for acting upon events.
+    /// </summary>
     abstract class Process
     {
         public int ID;
         protected List<Packet> packetsOut;
         protected List<ulong> packetsOutTimeouts;
 
+        /// <summary>
+        /// Act upon event.
+        /// </summary>
         public abstract void HandleEvent(SimulationEvent simEvent, Model model);
+
+        /// <summary>
+        /// Add packet to set of outgoing packets.
+        /// </summary>
         public void AddPacketOut(Packet packetOut)
         {
             packetsOut.Add(packetOut);
         }
+
+        /// <summary>
+        /// Add timeout to set of timeouts corresponding to outgoing packets.
+        /// </summary>
         public void AddPacketOutTimeout(ulong timeout)
         {
             packetsOutTimeouts.Add(timeout);
         }
     }
 
-    // Links are one-directional, i.e. for two connected devices there are two links.
-    // The network itself isn't directed, but this representation is more practical.
+    /// <summary>
+    /// Process representing connection between two devices, controls packet transfers between them.
+    /// </summary>
+    /// <remarks>
+    /// Links are one-directional, i.e. for two connected devices there are two links.
+    /// </remarks>
     class Link : Process
     {
         public int toID, timeToTransfer;
@@ -98,6 +121,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Process representing firewall on router, discards malicious packets.
+    /// </summary>
     class Firewall : Process
     {
         public int timeToProcess;
@@ -169,6 +195,10 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Represents a device. 
+    /// Aside from being a process, it also has a set of links, a routing index and set of incoming packets.
+    /// </summary>
     abstract class Device : Process
     {
         public int routingTableIndex;
@@ -176,18 +206,33 @@ namespace semestralka_routing_simulation
         protected List<Packet> packetsIn;
         protected List<ulong> packetsInTimeouts;
 
+        /// <summary>
+        /// Add link to devices' set of links.
+        /// </summary>
         public void AddLink(Link link)
         {
             links.Add(link);
         }
+
+        /// <summary>
+        /// Add packet to devices' set of incoming packets.
+        /// </summary>
         public void AddPacketIn(Packet packetIn)
         {
             packetsIn.Add(packetIn);
         }
+
+        /// <summary>
+        /// Add timeout corresponding to incoming packet.
+        /// </summary>
         public void AddPacketInTimeout(ulong timeout)
         {
             packetsInTimeouts.Add(timeout);
         }
+
+        /// <summary>
+        /// Looks for link connected to next hop device for given packet and returns it.
+        /// </summary>
         protected Link GetLink(Packet packet, Model model)
         {
             int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
@@ -207,6 +252,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Represents a physical router, prime responsibility is forwarding packets to next hop device on path to destination computer.
+    /// </summary>
     class Router : Device
     {
         public int timeToProcess;
@@ -226,6 +274,9 @@ namespace semestralka_routing_simulation
             firewall = null;
         }
 
+        /// <summary>
+        /// Assign a firewall to router.
+        /// </summary>
         public void SetFirewall(Firewall firewall)
         {
             this.firewall = firewall;
@@ -309,6 +360,12 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Represents physical computer, that is source and destination for packets in network.
+    /// </summary>
+    /// <remarks>
+    /// Computer cannot forward packet, as opposed to router.
+    /// </remarks>
     class Computer : Device
     {
 
@@ -328,6 +385,7 @@ namespace semestralka_routing_simulation
             packetsOutTimeouts = new List<ulong>();
             packetsInTimeouts = new List<ulong>();
         }
+
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
             if (simEvent.eventType == EventType.SendPacket)
@@ -399,6 +457,10 @@ namespace semestralka_routing_simulation
 
             }
         }
+
+        /// <summary>
+        /// Prepare packet, delegate it to proper link and setup timeout.
+        /// </summary>
         private void SendPacket(Packet packet, Model model)
         {
             packet.timeout = model.time + model.timeout;
