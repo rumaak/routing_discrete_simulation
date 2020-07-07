@@ -51,7 +51,7 @@ namespace semestralka_routing_simulation
             this.eventType = eventType;
         }
 
-        public void execute(Model model)
+        public void Execute(Model model)
         {
 
             Debug.WriteLine($"{time}: Process {process.GetType().Name}{process.ID} is handling event of type {eventType}");
@@ -118,7 +118,7 @@ namespace semestralka_routing_simulation
             this.routing = routing;
         }
 
-        public void extractDevices(ListBox.ObjectCollection devices)
+        public void ExtractDevices(ListBox.ObjectCollection devices)
         {
             foreach (FormDevice device in devices)
             {
@@ -130,7 +130,7 @@ namespace semestralka_routing_simulation
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], computer);
                         linkIndex += 1;
-                        computer.addLink(link);
+                        computer.AddLink(link);
 
                     }
 
@@ -145,7 +145,7 @@ namespace semestralka_routing_simulation
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], router);
                         linkIndex += 1;
-                        router.addLink(link);
+                        router.AddLink(link);
                     }
 
                     if (device.firewall)
@@ -153,7 +153,7 @@ namespace semestralka_routing_simulation
                         Firewall firewall = new Firewall(firewallIndex, device.firewallTimeToProcess, router);
                         firewallIndex += 1;
                         firewalls.Add(firewall);
-                        router.setFirewall(firewall);
+                        router.SetFirewall(firewall);
                     }
 
                     routers.Add(router);
@@ -162,12 +162,12 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public void generatePackets(SimulationParametersDto simulationParameters)
+        public void GeneratePackets(SimulationParametersDto simulationParameters)
         {
-            Random rnd = new Random(simulationParameters.randomSeed);
+            Random rnd = new Random(simulationParameters.RandomSeed);
 
             Distribution distribution;
-            if (simulationParameters.distributionUniform)
+            if (simulationParameters.DistributionUniform)
             {
                 distribution = Distribution.Uniform;
             }
@@ -177,26 +177,26 @@ namespace semestralka_routing_simulation
             }
 
             ulong i = 0;
-            while (i < simulationParameters.totalPackets)
+            while (i < simulationParameters.TotalPackets)
             {
                 int from = rnd.Next(computers.Count);
                 int to = rnd.Next(computers.Count);
                 ulong when = 0;
-                bool malicious = rnd.NextDouble() < simulationParameters.probabilityMalicious;
+                bool malicious = rnd.NextDouble() < simulationParameters.ProbabilityMalicious;
 
                 if (from == to) continue;
 
                 if (distribution == Distribution.Uniform)
                 {
-                    when = Helpers.getNextUniform(simulationParameters.sendUntil, rnd);
+                    when = Helpers.GetNextUniform(simulationParameters.SendUntil, rnd);
                 }
                 else if (distribution == Distribution.DiscreteGaussian)
                 {
-                    when = Helpers.getNextGaussian(simulationParameters.sendUntil, rnd);
+                    when = Helpers.GetNextGaussian(simulationParameters.SendUntil, rnd);
                 }
 
                 Packet packet = new Packet(computers[from].ID, computers[to].ID, i + 1, malicious);
-                computers[from].addPacketOut(packet);
+                computers[from].AddPacketOut(packet);
 
                 // Note that the time of sending doesn't need to correspond to this particular packet, i.e.
                 // at timestep `when` some packet of `from` computer will be sent, not neccessarily this one.
@@ -216,22 +216,22 @@ namespace semestralka_routing_simulation
         public delegate void SafeCallDelegateTextBox(TextBox output, string text);
         public delegate void SafeCallDelegatePanel(Panel panelInput);
 
-        private void updateResults(Statistics statistics, ResultControls controls)
+        private void UpdateResults(Statistics statistics, ResultControls controls)
         {
-            changeText(controls.simulationLength, statistics.lengthOfSimulation.ToString());
-            changeText(controls.packetsSent, statistics.sentPackets.ToString());
-            changeText(controls.packetsDelivered, statistics.deliveredPackets.ToString());
-            changeText(controls.packetsSentMalicious, statistics.sentPacketsMalicious.ToString());
-            changeText(controls.packetsDeliveredMalicious, statistics.deliveredPacketsMalicious.ToString());
-            changeText(controls.averageTimeDelivered, statistics.getAverageDeliveryTime().ToString());
-            changeText(controls.averageAttempts, statistics.getAverageNumberAttempts().ToString());
+            ChangeText(controls.SimulationLength, statistics.lengthOfSimulation.ToString());
+            ChangeText(controls.PacketsSent, statistics.sentPackets.ToString());
+            ChangeText(controls.PacketsDelivered, statistics.deliveredPackets.ToString());
+            ChangeText(controls.PacketsSentMalicious, statistics.sentPacketsMalicious.ToString());
+            ChangeText(controls.PacketsDeliveredMalicious, statistics.deliveredPacketsMalicious.ToString());
+            ChangeText(controls.AverageTimeDelivered, statistics.GetAverageDeliveryTime().ToString());
+            ChangeText(controls.AverageAttempts, statistics.GetAverageNumberAttempts().ToString());
         }
 
-        private void changeText(TextBox output, string text)
+        private void ChangeText(TextBox output, string text)
         {
             if (output.InvokeRequired)
             {
-                var d = new SafeCallDelegateTextBox(changeText);
+                var d = new SafeCallDelegateTextBox(ChangeText);
                 output.Invoke(d, new object[] { output, text });
             }
             else
@@ -240,11 +240,11 @@ namespace semestralka_routing_simulation
             }
         }
 
-        private void enableInput(Panel panelInput)
+        private void EnableInput(Panel panelInput)
         {
             if (panelInput.InvokeRequired)
             {
-                var d = new SafeCallDelegatePanel(enableInput);
+                var d = new SafeCallDelegatePanel(EnableInput);
                 panelInput.Invoke(d, new object[] { panelInput });
             }
             else
@@ -253,41 +253,41 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public void run(SimulationParametersDto simulationParameters, ResultControls controls, Panel panelInput)
+        public void Run(SimulationParametersDto simulationParameters, ResultControls controls, Panel panelInput)
         {
             Debug.WriteLine("Simulation started");
 
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
-            Routing routing = new Routing(simulationParameters.devices);
-            Model model = new Model(scheduler, simulationParameters.timeout, simulationParameters.numberAttempts, statistics, routing);
+            Routing routing = new Routing(simulationParameters.Devices);
+            Model model = new Model(scheduler, simulationParameters.Timeout, simulationParameters.NumberAttempts, statistics, routing);
 
-            routing.assignRoutingIndices();
-            model.extractDevices(simulationParameters.devices);
-            routing.initializeRoutingTables();
-            routing.computeRoutingTables();
+            routing.AssignRoutingIndices();
+            model.ExtractDevices(simulationParameters.Devices);
+            routing.InitializeRoutingTables();
+            routing.ComputeRoutingTables();
 
-            if (routing.existsUnreachable())
+            if (routing.ExistsUnreachable())
             {
                 MessageBox.Show("Some devices are unreachable.", "Devices unreachable", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Debug.WriteLine($"Some devices are unreachable");
-                enableInput(panelInput);
+                EnableInput(panelInput);
                 return;
             }
 
-            model.generatePackets(simulationParameters);
+            model.GeneratePackets(simulationParameters);
 
             SimulationEvent simEvent = scheduler.GetFirst();
             ulong lastTime = 0;
             while (simEvent != null)
             {
                 model.time = simEvent.time;
-                simEvent.execute(model);
+                simEvent.Execute(model);
                 simEvent = scheduler.GetFirst();
                 if (model.time != lastTime)
                 {
                     statistics.lengthOfSimulation = model.time;
-                    updateResults(statistics, controls);
+                    UpdateResults(statistics, controls);
                     lastTime = model.time;
                 }
             }
@@ -295,10 +295,10 @@ namespace semestralka_routing_simulation
             Debug.WriteLine($"Length of simulation: {statistics.lengthOfSimulation}");
             Debug.WriteLine($"Sent / delivered packets: {statistics.sentPackets} / {statistics.deliveredPackets}");
             Debug.WriteLine($"Sent / delivered malicious packets: {statistics.sentPacketsMalicious} / {statistics.deliveredPacketsMalicious}");
-            Debug.WriteLine($"Average time of delivery: {statistics.getAverageDeliveryTime()}");
-            Debug.WriteLine($"Average number of attempts: {statistics.getAverageNumberAttempts()}");
+            Debug.WriteLine($"Average time of delivery: {statistics.GetAverageDeliveryTime()}");
+            Debug.WriteLine($"Average number of attempts: {statistics.GetAverageNumberAttempts()}");
 
-            enableInput(panelInput);
+            EnableInput(panelInput);
         }
     }
 
@@ -310,7 +310,7 @@ namespace semestralka_routing_simulation
         public Dictionary<int, int> deviceIndexToRoutingIndex;
         public Dictionary<int, int> routingIndexToDeviceIndex;
         public Dictionary<int, Device> routingIndexToDevice;
-        private ListBox.ObjectCollection devices;
+        private readonly ListBox.ObjectCollection devices;
 
         public Routing (ListBox.ObjectCollection devices)
         {
@@ -324,7 +324,7 @@ namespace semestralka_routing_simulation
             this.devices = devices;
         }
 
-        public void assignRoutingIndices()
+        public void AssignRoutingIndices()
         {
             foreach (FormDevice device in devices)
             {
@@ -334,7 +334,7 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public void initializeRoutingTables()
+        public void InitializeRoutingTables()
         {
 
             for (int i = 0; i < devices.Count; i++)
@@ -370,7 +370,7 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public void computeRoutingTables()
+        public void ComputeRoutingTables()
         {
             int n = routingTableSuccessors.GetLength(1);
             for (int k = 0; k < n; k++)
@@ -395,7 +395,7 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public bool existsUnreachable()
+        public bool ExistsUnreachable()
         {
             for (int i = 0; i < routingTableSuccessors.GetLength(1); i++)
             {
@@ -431,13 +431,13 @@ namespace semestralka_routing_simulation
         }
 
         // Can be infinity, includes malicious packets
-        public double getAverageDeliveryTime()
+        public double GetAverageDeliveryTime()
         {
             return totalDeliveryTime / deliveredPackets;
         }
 
         // Can be infinity, doesn't include malicious packets
-        public double getAverageNumberAttempts()
+        public double GetAverageNumberAttempts()
         {
             return totalNumberAttempts / (deliveredPackets - deliveredPacketsMalicious);
         }
