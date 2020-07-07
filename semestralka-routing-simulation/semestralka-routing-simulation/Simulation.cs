@@ -386,8 +386,14 @@ namespace semestralka_routing_simulation
                             ulong newWeight = routingTableWeights[i, k] + routingTableWeights[k, j];
                             if (newWeight < originalWeight)
                             {
-                                routingTableWeights[i, j] = newWeight;
-                                routingTableSuccessors[i, j] = routingTableSuccessors[i, k];
+                                Device intermediateDevice = routingIndexToDevice[k];
+                                // Compouter cannot forward a packet, therefore can't serve as an intermediate device during
+                                // routing
+                                if (intermediateDevice.GetType() == typeof(Router))
+                                {
+                                    routingTableWeights[i, j] = newWeight;
+                                    routingTableSuccessors[i, j] = routingTableSuccessors[i, k];
+                                }                            
                             }
                         }
                     }
@@ -399,8 +405,14 @@ namespace semestralka_routing_simulation
         {
             for (int i = 0; i < routingTableSuccessors.GetLength(1); i++)
             {
+                // No need to check connectivity to / from router
+                Device sourceDevice = routingIndexToDevice[i];
+                if (sourceDevice.GetType() == typeof(Router)) { continue; }
                 for (int j = 0; j < routingTableSuccessors.GetLength(1); j++)
                 {
+                    // No need to check connectivity to / from router
+                    Device destinationDevice = routingIndexToDevice[j];
+                    if (destinationDevice.GetType() == typeof(Router)) { continue; }
                     if (routingTableSuccessors[i, j] == -1)
                     {
                         return true;
