@@ -111,14 +111,25 @@ namespace semestralka_routing_simulation
                 numericUpDownDeviceTimeProcessFirewall.Enabled = false;
             }
 
+            if (selectedDevice.malicious)
+            {
+                checkBoxDeviceMalicious.Checked = true;
+            }
+            else
+            {
+                checkBoxDeviceMalicious.Checked = false;
+            }
+
             if (selectedDevice.deviceType == DeviceType.Computer)
             {
+                checkBoxDeviceMalicious.Enabled = true;
                 checkBoxDeviceFirewall.Enabled = false;
                 numericUpDownDeviceTimeProcess.Enabled = false;
                 numericUpDownDeviceTimeProcess.Text = "";
             }
             else
             {
+                checkBoxDeviceMalicious.Enabled = false;
                 checkBoxDeviceFirewall.Enabled = true;
                 numericUpDownDeviceTimeProcess.Enabled = true;
                 numericUpDownDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
@@ -131,11 +142,11 @@ namespace semestralka_routing_simulation
         {
             listBoxDevices.Items.Clear();
 
-            listBoxDevices.Items.Add(new FormDevice(DeviceType.Router, 1, true, 1, nextID));
+            listBoxDevices.Items.Add(new FormDevice(DeviceType.Router, 1, true, 1, nextID, false));
             nextID += 1;
-            listBoxDevices.Items.Add(new FormDevice(DeviceType.Computer, 1, false, 1, nextID));
+            listBoxDevices.Items.Add(new FormDevice(DeviceType.Computer, 1, false, 1, nextID, true));
             nextID += 1;
-            listBoxDevices.Items.Add(new FormDevice(DeviceType.Computer, 1, false, 1, nextID));
+            listBoxDevices.Items.Add(new FormDevice(DeviceType.Computer, 1, false, 1, nextID, false));
             nextID += 1;
 
             ((FormDevice)listBoxDevices.Items[0]).AddConnection((FormDevice) listBoxDevices.Items[1], 5);
@@ -215,7 +226,7 @@ namespace semestralka_routing_simulation
         {
             if (nextID < int.MaxValue)
             {
-                FormDevice device = new FormDevice(DeviceType.Computer, 1, false, 1, nextID);
+                FormDevice device = new FormDevice(DeviceType.Computer, 1, false, 1, nextID, false);
                 nextID += 1;
                 listBoxDevices.Items.Add(device);
                 ListBoxDevices_SelectedIndexChanged(listBoxDevices, e);
@@ -315,25 +326,40 @@ namespace semestralka_routing_simulation
                 device.timeToProcess = (int)((NumericUpDown)sender).Value ;
             }
         }
+
+        private void CheckBoxDeviceMalicious_Click(object sender, EventArgs e)
+        {
+            FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
+
+            if (((CheckBox)sender).Checked)
+            {
+                device.malicious = true;
+            }
+            else
+            {
+                device.malicious = false;
+            }
+        }
     }
 
-   class FormDevice
+    class FormDevice
     {
         public List<FormDevice> connections;
         public List<int> transferTimes;
         public DeviceType deviceType;
         public int timeToProcess;
-        public bool firewall;
+        public bool firewall, malicious;
         public int firewallTimeToProcess;
         public int ID;
 
-        public FormDevice(DeviceType deviceType, int timeToProcess, bool firewall, int firewallTimeToProcess, int ID)
+        public FormDevice(DeviceType deviceType, int timeToProcess, bool firewall, int firewallTimeToProcess, int ID, bool malicious)
         {
             this.deviceType = deviceType;
             this.timeToProcess = timeToProcess;
             this.firewall = firewall;
             this.firewallTimeToProcess = firewallTimeToProcess;
             this.ID = ID;
+            this.malicious = malicious;
 
             connections = new List<FormDevice>();
             transferTimes = new List<int>();
@@ -389,6 +415,10 @@ namespace semestralka_routing_simulation
             if (deviceType == DeviceType.Router && type == DeviceType.Computer)
             {
                 firewall = false;
+            }
+            else if (deviceType == DeviceType.Computer && type == DeviceType.Router)
+            {
+                malicious = false;
             }
             deviceType = type;
         }
