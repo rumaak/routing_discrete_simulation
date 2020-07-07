@@ -53,8 +53,10 @@ namespace semestralka_routing_simulation
                 AverageAttempts = textBoxAverageAttempts
             };
 
+            string folderPath = textBoxFolderPath.Text;
+
             Simulation simulation = new Simulation();
-            simulation.Run(simulationParameters, controls, panelInput);
+            simulation.Run(simulationParameters, controls, folderPath, panelInput);
         }
 
         private void ButtonStart_Click(object sender, EventArgs e)
@@ -339,6 +341,19 @@ namespace semestralka_routing_simulation
             {
                 device.malicious = false;
             }
+        }
+
+        private void ButtonSelectFolder_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                textBoxFolderPath.Text = folderBrowserDialog.SelectedPath;
+            }
+        }
+
+        private void ButtonResetFolder_Click(object sender, EventArgs e)
+        {
+            textBoxFolderPath.Text = "";
         }
     }
 
