@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -258,7 +259,35 @@ namespace semestralka_routing_simulation
             }
         }
 
-        public void Run(SimulationParametersDto simulationParameters, ResultControls controls, Panel panelInput)
+        private void SaveToFile(Statistics statistics, string folderPath)
+        {
+            if (folderPath != "")
+            {
+                try
+                {
+                    string[] lines = 
+                    { 
+                        $"Simulation length: {statistics.lengthOfSimulation}",
+                        $"Packets sent: {statistics.sentPackets}",
+                        $"Packets delivered: {statistics.deliveredPackets}",
+                        $"Packets sent malicious: {statistics.sentPacketsMalicious}",
+                        $"Packets delivered malicious: {statistics.deliveredPacketsMalicious}",
+                        $"Average time delivered: {statistics.GetAverageDeliveryTime()}",
+                        $"Average number attempts: {statistics.GetAverageNumberAttempts()}",
+                    };
+
+                    string fileName = DateTime.Now.ToString("yyyy-MM-dd--hh-mm-ss");
+                    string path = @$"{folderPath}\{fileName}.txt";
+                    File.WriteAllLines(path, lines);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show($"Error during saving results to file:\n{e.Message}", "Error saving results", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        public void Run(SimulationParametersDto simulationParameters, ResultControls controls, string folderPath, Panel panelInput)
         {
             Debug.WriteLine("Simulation started");
 
@@ -303,6 +332,7 @@ namespace semestralka_routing_simulation
             Debug.WriteLine($"Average time of delivery: {statistics.GetAverageDeliveryTime()}");
             Debug.WriteLine($"Average number of attempts: {statistics.GetAverageNumberAttempts()}");
 
+            SaveToFile(statistics, folderPath);
             EnableInput(panelInput);
         }
     }
