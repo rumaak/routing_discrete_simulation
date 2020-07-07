@@ -106,7 +106,7 @@
             this.buttonStart.TabIndex = 0;
             this.buttonStart.Text = "Start";
             this.buttonStart.UseVisualStyleBackColor = true;
-            this.buttonStart.Click += new System.EventHandler(this.button1_Click);
+            this.buttonStart.Click += new System.EventHandler(this.ButtonStart_Click);
             // 
             // listBoxDevices
             // 
@@ -117,7 +117,7 @@
             this.listBoxDevices.ScrollAlwaysVisible = true;
             this.listBoxDevices.Size = new System.Drawing.Size(124, 169);
             this.listBoxDevices.TabIndex = 2;
-            this.listBoxDevices.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.listBoxDevices.SelectedIndexChanged += new System.EventHandler(this.ListBoxDevices_SelectedIndexChanged);
             // 
             // groupBoxDevices
             // 
@@ -137,7 +137,7 @@
             this.buttonAdd.TabIndex = 4;
             this.buttonAdd.Text = "Add";
             this.buttonAdd.UseVisualStyleBackColor = true;
-            this.buttonAdd.Click += new System.EventHandler(this.button2_Click);
+            this.buttonAdd.Click += new System.EventHandler(this.ButtonAdd_Click);
             // 
             // buttonRemove
             // 
@@ -148,7 +148,7 @@
             this.buttonRemove.TabIndex = 5;
             this.buttonRemove.Text = "Remove";
             this.buttonRemove.UseVisualStyleBackColor = true;
-            this.buttonRemove.Click += new System.EventHandler(this.button3_Click);
+            this.buttonRemove.Click += new System.EventHandler(this.ButtonRemove_Click);
             // 
             // groupBoxDeviceProperties
             // 
@@ -171,7 +171,7 @@
             this.numericUpDownDeviceTimeProcess.Name = "numericUpDownDeviceTimeProcess";
             this.numericUpDownDeviceTimeProcess.Size = new System.Drawing.Size(105, 23);
             this.numericUpDownDeviceTimeProcess.TabIndex = 17;
-            this.numericUpDownDeviceTimeProcess.ValueChanged += new System.EventHandler(this.numericUpDownDeviceTimeProcess_ValueChanged);
+            this.numericUpDownDeviceTimeProcess.ValueChanged += new System.EventHandler(this.NumericUpDownDeviceTimeProcess_ValueChanged);
             // 
             // groupBoxDeviceFirewall
             // 
@@ -191,7 +191,7 @@
             this.numericUpDownDeviceTimeProcessFirewall.Name = "numericUpDownDeviceTimeProcessFirewall";
             this.numericUpDownDeviceTimeProcessFirewall.Size = new System.Drawing.Size(105, 23);
             this.numericUpDownDeviceTimeProcessFirewall.TabIndex = 17;
-            this.numericUpDownDeviceTimeProcessFirewall.ValueChanged += new System.EventHandler(this.numericUpDownDeviceTimeProcessFirewall_ValueChanged);
+            this.numericUpDownDeviceTimeProcessFirewall.ValueChanged += new System.EventHandler(this.NumericUpDownDeviceTimeProcessFirewall_ValueChanged);
             // 
             // checkBoxDeviceFirewall
             // 
@@ -203,7 +203,7 @@
             this.checkBoxDeviceFirewall.TabIndex = 8;
             this.checkBoxDeviceFirewall.Text = "Firewall";
             this.checkBoxDeviceFirewall.UseVisualStyleBackColor = true;
-            this.checkBoxDeviceFirewall.Click += new System.EventHandler(this.checkBox2_Click);
+            this.checkBoxDeviceFirewall.Click += new System.EventHandler(this.CheckBoxDeviceFirewall_Click);
             // 
             // label3
             // 
@@ -225,7 +225,7 @@
             this.comboBoxDeviceType.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.comboBoxDeviceType.Size = new System.Drawing.Size(103, 23);
             this.comboBoxDeviceType.TabIndex = 8;
-            this.comboBoxDeviceType.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.comboBoxDeviceType.SelectedIndexChanged += new System.EventHandler(this.ComboBoxDeviceType_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -255,7 +255,7 @@
             this.numericUpDownDeviceTransferTime.Name = "numericUpDownDeviceTransferTime";
             this.numericUpDownDeviceTransferTime.Size = new System.Drawing.Size(75, 23);
             this.numericUpDownDeviceTransferTime.TabIndex = 26;
-            this.numericUpDownDeviceTransferTime.ValueChanged += new System.EventHandler(this.numericUpDownDeviceTransferTime_ValueChanged);
+            this.numericUpDownDeviceTransferTime.ValueChanged += new System.EventHandler(this.NumericUpDownDeviceTransferTime_ValueChanged);
             // 
             // label1
             // 
@@ -275,7 +275,7 @@
             this.checkBoxDeviceConnected.TabIndex = 9;
             this.checkBoxDeviceConnected.Text = "Connected";
             this.checkBoxDeviceConnected.UseVisualStyleBackColor = true;
-            this.checkBoxDeviceConnected.Click += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.checkBoxDeviceConnected.Click += new System.EventHandler(this.CheckBoxDeviceConnected_Click);
             // 
             // listBoxDeviceConnections
             // 
@@ -286,7 +286,7 @@
             this.listBoxDeviceConnections.ScrollAlwaysVisible = true;
             this.listBoxDeviceConnections.Size = new System.Drawing.Size(120, 124);
             this.listBoxDeviceConnections.TabIndex = 8;
-            this.listBoxDeviceConnections.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
+            this.listBoxDeviceConnections.SelectedIndexChanged += new System.EventHandler(this.ListBoxDeviceConnections_SelectedIndexChanged);
             // 
             // label4
             // 
