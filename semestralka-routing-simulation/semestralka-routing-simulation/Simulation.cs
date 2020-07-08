@@ -141,6 +141,8 @@ namespace semestralka_routing_simulation
             routers = new List<Router>();
             computers = new List<Computer>();
             firewalls = new List<Firewall>();
+
+            // These are used only for creation of links and firewalls, not during simulation itself
             linkIndex = 1;
             firewallIndex = 1;
 
@@ -162,6 +164,7 @@ namespace semestralka_routing_simulation
                 {
                     Computer computer = new Computer(device.ID, routing.deviceIndexToRoutingIndex[device.ID], device.malicious);
 
+                    // Add links to computer that correspond with connected neighboring devices.
                     for (int i = 0; i < device.connections.Count; i++)
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], computer);
@@ -177,6 +180,7 @@ namespace semestralka_routing_simulation
                 {
                     Router router = new Router(device.ID, device.timeToProcess, routing.deviceIndexToRoutingIndex[device.ID]);
 
+                    // Add links to router that correspond with connected neighboring devices.
                     for (int i = 0; i < device.connections.Count; i++)
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], router);
@@ -184,6 +188,7 @@ namespace semestralka_routing_simulation
                         router.AddLink(link);
                     }
 
+                    // If specified, assign firewall to router.
                     if (device.firewall)
                     {
                         Firewall firewall = new Firewall(firewallIndex, device.firewallTimeToProcess, router);
@@ -231,6 +236,7 @@ namespace semestralka_routing_simulation
                     malicious = rnd.NextDouble() < simulationParameters.ProbabilityMalicious;
                 }
 
+                // Assign time of sending for packet with respect to selected probability mass function.
                 if (distribution == Distribution.Uniform)
                 {
                     when = Helpers.GetNextUniform(simulationParameters.SendUntil, rnd);
@@ -353,16 +359,19 @@ namespace semestralka_routing_simulation
         {
             Debug.WriteLine("Simulation started");
 
+            // Initialize model and related objects
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
             Routing routing = new Routing(simulationParameters.Devices);
             Model model = new Model(scheduler, simulationParameters.Timeout, simulationParameters.NumberAttempts, statistics, routing);
 
+            // Create routing tables and extract device information from GUI
             routing.AssignRoutingIndices();
             model.ExtractDevices(simulationParameters.Devices);
             routing.InitializeRoutingTables();
             routing.ComputeRoutingTables();
 
+            // If there is a computer not reachable from another computer, exit.
             if (routing.ExistsUnreachable())
             {
                 MessageBox.Show("Some devices are unreachable.", "Devices unreachable", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -373,6 +382,7 @@ namespace semestralka_routing_simulation
 
             model.GeneratePackets(simulationParameters);
 
+            // Main simulation loop.
             SimulationEvent simEvent = scheduler.GetFirst();
             ulong lastTime = 0;
             while (simEvent != null)

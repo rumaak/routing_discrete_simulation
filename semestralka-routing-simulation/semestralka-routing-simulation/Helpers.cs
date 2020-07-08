@@ -46,8 +46,11 @@ namespace semestralka_routing_simulation
                 double mean = ((double)maxTime) / 2;
                 double std = ((double)maxTime) / 4;
 
+                // Random uniform values (0, 1]
                 double u1 = 1.0 - rnd.NextDouble();
                 double u2 = 1.0 - rnd.NextDouble();
+
+                // https://stackoverflow.com/a/218600/6495696
                 double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
                 randNormal = mean + std * randStdNormal;
             }

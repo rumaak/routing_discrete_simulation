@@ -17,6 +17,10 @@ namespace semestralka_routing_simulation
     {
         public int ID;
         protected List<Packet> packetsOut;
+        
+        // It might've happened that during manipulation with packet a Timeout event has occured and packets own 
+        // timeout field has been rewritten - because of this, we keep list of original timeouts of packets, so that
+        // when packets timeout changes, we will know about it.
         protected List<ulong> packetsOutTimeouts;
 
         /// <summary>
@@ -73,6 +77,7 @@ namespace semestralka_routing_simulation
                     Packet packet = packetsOut[0];
                     ulong packetTimeout = packetsOutTimeouts[0];
 
+                    // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)timeToTransfer, this, EventType.FinishSending);
@@ -98,8 +103,10 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsOutTimeouts[0];
                 packetsOutTimeouts.RemoveAt(0);
 
+                // Check if packet didn't already time out.
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
+                    // Delegate packet to next hop device on its' path to destination computer
                     int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
                     int nextHopRoutingIndex = model.routing.routingTableSuccessors[sourceDevice.routingTableIndex, destinationRoutingIndex];
                     Device nextHopDevice = model.routing.routingIndexToDevice[nextHopRoutingIndex];
@@ -147,6 +154,7 @@ namespace semestralka_routing_simulation
                     Packet packet = packetsOut[0];
                     ulong packetTimeout = packetsOutTimeouts[0];
 
+                    // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
@@ -173,6 +181,7 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsOutTimeouts[0];
                 packetsOutTimeouts.RemoveAt(0);
 
+                // Check if packet isn't malicious or didn't already time out.
                 if (packet.malicious)
                 {
                     Debug.WriteLine($"Firewall {this.ID} found out that packet {packet.ID} is malicious and discarded it.");
@@ -286,6 +295,7 @@ namespace semestralka_routing_simulation
         {
             if (simEvent.eventType == EventType.SendPacket)
             {
+                // Delegate packet to corresponding link.
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
@@ -306,6 +316,7 @@ namespace semestralka_routing_simulation
                     Packet packet = packetsIn[0];
                     ulong packetTimeout = packetsInTimeouts[0];
 
+                    // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
@@ -332,8 +343,10 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsInTimeouts[0];
                 packetsInTimeouts.RemoveAt(0);
 
+                // Check if packet didn't already time out.
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
+                    // If there is firewall associated with this router, delegate it this packet
                     if (firewall != null)
                     {
                         SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
@@ -393,6 +406,7 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
+                // Used to measure how long it took to deliver packet
                 packet.timeFirstSent = model.time;
 
                 SendPacket(packet, model);
@@ -413,6 +427,7 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsInTimeouts[0];
                 packetsInTimeouts.RemoveAt(0);
 
+                // Check if packet didn't already time out.
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
                     packet.received = true;
@@ -444,6 +459,7 @@ namespace semestralka_routing_simulation
 
                 if (!packet.received)
                 {
+                    // If the packet isn't delivered in time and hasn't been sent too many times, send it again.
                     if (packet.attemptNumber < model.timeoutAttempts)
                     {
                         SendPacket(packet, model);
@@ -463,6 +479,7 @@ namespace semestralka_routing_simulation
         /// </summary>
         private void SendPacket(Packet packet, Model model)
         {
+            // Update packets' timeout
             packet.timeout = model.time + model.timeout;
 
             Link link = GetLink(packet, model);
@@ -473,7 +490,7 @@ namespace semestralka_routing_simulation
             model.scheduler.Add(sendPacket);
 
             // Adding a single tick because timeout is inclusive (i.e. if packet arrives precisely in time of timeout,
-            // it is still considered to be received and it shouldn't be resent)
+            // it is still considered to be received and it shouldn't be resent).
             SimulationEvent resolveTimeout = new SimulationEvent(packet.timeout + 1, this, EventType.Timeout);
             packetsSent.Add(packet);
             model.scheduler.Add(resolveTimeout);

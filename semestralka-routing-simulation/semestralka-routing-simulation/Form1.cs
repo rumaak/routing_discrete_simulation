@@ -76,12 +76,18 @@ namespace semestralka_routing_simulation
         private void ButtonStart_Click(object sender, EventArgs e)
         {
             panelInput.Enabled = false;
+
+            // Running in separate thread to ensure GUI responsivity during simulation
             Thread newThread = new Thread(new ThreadStart(StartSimulation));
             newThread.Start();
         }
 
+        /// <summary>
+        /// Updates Device section of GUI with respect to currently selected device.
+        /// </summary>
         private void ListBoxDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Hide device properties when is nothing selected
             if (listBoxDevices.SelectedItem is null)
             {
                 groupBoxDeviceProperties.Visible = false;
@@ -136,6 +142,7 @@ namespace semestralka_routing_simulation
                 checkBoxDeviceMalicious.Checked = false;
             }
 
+            // Computer can be malicious but can't have firewall, vice versa for Router
             if (selectedDevice.deviceType == DeviceType.Computer)
             {
                 checkBoxDeviceMalicious.Enabled = true;
@@ -151,6 +158,7 @@ namespace semestralka_routing_simulation
                 numericUpDownDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
             }
 
+            // Update section with connected devices
             ListBoxDeviceConnections_SelectedIndexChanged(listBoxDeviceConnections, e);
         }
 
@@ -220,6 +228,9 @@ namespace semestralka_routing_simulation
             numericUpDownTimeout.Minimum = 1;
         }
 
+        /// <summary>
+        /// Update GUI section for device connections.
+        /// </summary>
         private void ListBoxDeviceConnections_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBoxDeviceConnections.SelectedItem is null)
@@ -241,8 +252,8 @@ namespace semestralka_routing_simulation
 
             int transfer_time = selectedDevice.GetTransferTime(selectedDeviceConnections);
             
-            // non-positive transfer time indicates there is no link
-            if (transfer_time > 0)
+            // negative transfer time indicates there is no link
+            if (transfer_time >= 0)
             {
                 checkBoxDeviceConnected.Checked = true;
                 numericUpDownDeviceTransferTime.Enabled = true;
@@ -250,6 +261,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Add new device with default configuration.
+        /// </summary>
         private void ButtonAdd_Click(object sender, EventArgs e)
         {
             if (nextID < int.MaxValue)
@@ -261,6 +275,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Remove device as well as all references to it.
+        /// </summary>
         private void ButtonRemove_Click(object sender, EventArgs e)
         {
             FormDevice selectedDevice = (FormDevice)listBoxDevices.SelectedItem;
@@ -274,6 +291,9 @@ namespace semestralka_routing_simulation
             buttonRemove.Enabled = false;
         }
 
+        /// <summary>
+        /// Create connection between selected devices.
+        /// </summary>
         private void CheckBoxDeviceConnected_Click(object sender, EventArgs e)
         {
             FormDevice device1 = (FormDevice)listBoxDevices.SelectedItem;
@@ -281,6 +301,7 @@ namespace semestralka_routing_simulation
             if (((CheckBox) sender).Checked)
             {
                 numericUpDownDeviceTransferTime.Enabled = true;
+                // Default transfer time
                 int timeToTransfer = 1;
                 device1.AddConnection(device2, timeToTransfer);
                 numericUpDownDeviceTransferTime.Text = timeToTransfer.ToString();
@@ -293,6 +314,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Update transfer time on link between selected devices.
+        /// </summary>
         private void NumericUpDownDeviceTransferTime_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
@@ -304,6 +328,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Change type of selected device.
+        /// </summary>
         private void ComboBoxDeviceType_SelectedIndexChanged(object sender, EventArgs e)
         {
             DeviceType dt = ((ComboBox)sender).SelectedIndex switch
@@ -319,6 +346,9 @@ namespace semestralka_routing_simulation
             listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)] = listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)];
         }
 
+        /// <summary>
+        /// Assign firewall to selected router.
+        /// </summary>
         private void CheckBoxDeviceFirewall_Click(object sender, EventArgs e)
         {
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
@@ -337,6 +367,9 @@ namespace semestralka_routing_simulation
             }
         }
         
+        /// <summary>
+        /// Change firewall process time.
+        /// </summary>
         private void NumericUpDownDeviceTimeProcessFirewall_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
@@ -346,6 +379,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Change process time of router.
+        /// </summary>
         private void NumericUpDownDeviceTimeProcess_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
@@ -355,6 +391,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Change maliciousness of computer
+        /// </summary>
         private void CheckBoxDeviceMalicious_Click(object sender, EventArgs e)
         {
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
@@ -369,6 +408,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Open dialog for folder selection, save value to appropriate text box.
+        /// </summary>
         private void ButtonSelectFolder_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
