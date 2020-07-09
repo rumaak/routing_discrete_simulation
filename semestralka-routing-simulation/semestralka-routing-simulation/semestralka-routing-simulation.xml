@@ -359,6 +359,11 @@
             If writing to file doesn't end successfuly, a MessageBox with error message is shown.
             </remarks>
         </member>
+        <member name="M:semestralka_routing_simulation.Simulation.CheckNumberComputers(System.Windows.Forms.ListBox.ObjectCollection)">
+            <summary>
+            Check if number of computers is greater than 2.
+            </summary>
+        </member>
         <member name="M:semestralka_routing_simulation.Simulation.Run(semestralka_routing_simulation.SimulationParametersDto,semestralka_routing_simulation.ResultControls,System.String,System.Windows.Forms.Panel)">
             <summary>
             Simulation entry point.

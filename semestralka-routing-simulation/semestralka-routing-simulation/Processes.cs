@@ -80,7 +80,7 @@ namespace semestralka_routing_simulation
                     // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
-                        SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)timeToTransfer, this, EventType.FinishSending);
+                        SimulationEvent finishSending = new SimulationEvent(checked(model.time + (ulong)timeToTransfer), this, EventType.FinishSending);
                         model.scheduler.Add(finishSending);
                         busy = true;
                     }
@@ -158,7 +158,7 @@ namespace semestralka_routing_simulation
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
-                        SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong)timeToProcess, this, EventType.FinishProcessing);
+                        SimulationEvent processingFinished = new SimulationEvent(checked(model.time + (ulong)timeToProcess), this, EventType.FinishProcessing);
                         model.scheduler.Add(processingFinished);
                     }
                     else
@@ -320,7 +320,7 @@ namespace semestralka_routing_simulation
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
-                        SimulationEvent processingFinished = new SimulationEvent(model.time + (ulong)timeToProcess, this, EventType.FinishProcessing);
+                        SimulationEvent processingFinished = new SimulationEvent(checked(model.time + (ulong)timeToProcess), this, EventType.FinishProcessing);
                         model.scheduler.Add(processingFinished);
                     }
                     else
@@ -480,7 +480,7 @@ namespace semestralka_routing_simulation
         private void SendPacket(Packet packet, Model model)
         {
             // Update packets' timeout
-            packet.timeout = model.time + model.timeout;
+            packet.timeout = checked(model.time + model.timeout);
 
             Link link = GetLink(packet, model);
 
@@ -491,7 +491,7 @@ namespace semestralka_routing_simulation
 
             // Adding a single tick because timeout is inclusive (i.e. if packet arrives precisely in time of timeout,
             // it is still considered to be received and it shouldn't be resent).
-            SimulationEvent resolveTimeout = new SimulationEvent(packet.timeout + 1, this, EventType.Timeout);
+            SimulationEvent resolveTimeout = new SimulationEvent(checked(packet.timeout + 1), this, EventType.Timeout);
             packetsSent.Add(packet);
             model.scheduler.Add(resolveTimeout);
         }

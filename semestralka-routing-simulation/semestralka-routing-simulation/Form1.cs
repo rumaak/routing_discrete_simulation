@@ -216,7 +216,7 @@ namespace semestralka_routing_simulation
             numericUpDownDeviceTimeProcessFirewall.Maximum = int.MaxValue;
 
             numericUpDownTotalPackets.Maximum = ulong.MaxValue;
-            numericUpDownSendUntil.Maximum = ulong.MaxValue;
+            numericUpDownSendUntil.Maximum = ulong.MaxValue - 1;
             numericUpDownProbabilityMalicious.Maximum = 1;
             numericUpDownNumberAttempts.Maximum = 100;
             numericUpDownTimeout.Maximum = ulong.MaxValue;
