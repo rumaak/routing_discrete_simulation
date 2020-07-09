@@ -47,6 +47,56 @@
             Update GUI section for device connections.
             </summary>
         </member>
+        <member name="M:semestralka_routing_simulation.Form1.ButtonAdd_Click(System.Object,System.EventArgs)">
+            <summary>
+            Add new device with default configuration.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ButtonRemove_Click(System.Object,System.EventArgs)">
+            <summary>
+            Remove device as well as all references to it.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.CheckBoxDeviceConnected_Click(System.Object,System.EventArgs)">
+            <summary>
+            Create connection between selected devices.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.NumericUpDownDeviceTransferTime_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Update transfer time on link between selected devices.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ComboBoxDeviceType_SelectedIndexChanged(System.Object,System.EventArgs)">
+            <summary>
+            Change type of selected device.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.CheckBoxDeviceFirewall_Click(System.Object,System.EventArgs)">
+            <summary>
+            Assign firewall to selected router.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.NumericUpDownDeviceTimeProcessFirewall_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Change firewall process time.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.NumericUpDownDeviceTimeProcess_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Change process time of router.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.CheckBoxDeviceMalicious_Click(System.Object,System.EventArgs)">
+            <summary>
+            Change maliciousness of computer
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ButtonSelectFolder_Click(System.Object,System.EventArgs)">
+            <summary>
+            Open dialog for folder selection, save value to appropriate text box.
+            </summary>
+        </member>
         <member name="F:semestralka_routing_simulation.Form1.components">
             <summary>
              Required designer variable.
