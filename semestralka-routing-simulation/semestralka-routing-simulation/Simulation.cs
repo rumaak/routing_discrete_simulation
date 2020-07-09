@@ -352,6 +352,23 @@ namespace semestralka_routing_simulation
         }
 
         /// <summary>
+        /// Check if number of computers is greater than 2.
+        /// </summary>
+        private bool CheckNumberComputers(ListBox.ObjectCollection devices)
+        {
+            int numberComputers = 0;
+            foreach (FormDevice device in devices)
+            {
+                if (device.deviceType == DeviceType.Computer)
+                {
+                    numberComputers += 1;
+                }
+            }
+
+            return numberComputers > 1;
+        }
+
+        /// <summary>
         /// Simulation entry point.
         /// Sets up model and related objects, carries out the simulation, publishes simulation results.
         /// </summary>
@@ -359,13 +376,22 @@ namespace semestralka_routing_simulation
         {
             Debug.WriteLine("Simulation started");
 
-            // Initialize model and related objects
+            // Initialize model and related objects.
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
             Routing routing = new Routing(simulationParameters.Devices);
             Model model = new Model(scheduler, simulationParameters.Timeout, simulationParameters.NumberAttempts, statistics, routing);
 
-            // Create routing tables and extract device information from GUI
+            // Check whether there are at least 2 computers.
+            if (!CheckNumberComputers(simulationParameters.Devices))
+            {
+                MessageBox.Show("There need to be at least 2 computers in network.", "Not enough computers", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.WriteLine($"Less than 2 computers in network");
+                EnableInput(panelInput);
+                return;
+            }
+
+            // Create routing tables and extract device information from GUI.
             routing.AssignRoutingIndices();
             model.ExtractDevices(simulationParameters.Devices);
             routing.InitializeRoutingTables();
