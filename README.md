@@ -14,9 +14,9 @@ After starting the program, GUI should show up.
 
 ![](docs_images/start_app.PNG)
 
-An example of network is pre-loaded, it is possible to run simulation right away and see the results at the bottom.
+An example of network is pre-loaded, it is possible to run simulation right away and see the results at the bottom. The network is very simple, so it shouldn't be hard to skim through the devices and understand it. Here we will try to implement and simulate more complex network.
 
-More specific description of individual controls can be found on [wiki](https://github.com/rumaak/routing_discrete_simulation/wiki/Task-specification), here we will try to use this program to simulate actual network. Let us consider the network depicted below.
+More specific description of individual controls can be found on [wiki](https://github.com/rumaak/routing_discrete_simulation/wiki/Task-specification). Let us consider the network depicted below.
 
 ![](docs_images/network_example.png)
 
