@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Discrete simulation of routing
+// Jan Ruman, 1st year of study
+// Summer term, 2019 / 2020
+// NPRG031
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -9,12 +14,18 @@ using System.Windows.Forms;
 
 namespace semestralka_routing_simulation
 {
-    public enum DeviceType
+    /// <summary>
+    /// Type of device.
+    /// </summary>
+    enum DeviceType
     {
         Router,
         Computer
     }
 
+    /// <summary>
+    /// Form holding and manipulating GUI controls.
+    /// </summary>
     public partial class Form1 : Form
     {
         int nextID;
@@ -28,6 +39,9 @@ namespace semestralka_routing_simulation
             InitializeSimulationParameters();
         }
 
+        /// <summary>
+        /// Prepare data for simulation and run it.
+        /// </summary>
         private void StartSimulation()
         {
             SimulationParametersDto simulationParameters = new SimulationParametersDto()
@@ -62,12 +76,18 @@ namespace semestralka_routing_simulation
         private void ButtonStart_Click(object sender, EventArgs e)
         {
             panelInput.Enabled = false;
+
+            // Running in separate thread to ensure GUI responsivity during simulation
             Thread newThread = new Thread(new ThreadStart(StartSimulation));
             newThread.Start();
         }
 
+        /// <summary>
+        /// Updates Device section of GUI with respect to currently selected device.
+        /// </summary>
         private void ListBoxDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Hide device properties when is nothing selected
             if (listBoxDevices.SelectedItem is null)
             {
                 groupBoxDeviceProperties.Visible = false;
@@ -122,6 +142,7 @@ namespace semestralka_routing_simulation
                 checkBoxDeviceMalicious.Checked = false;
             }
 
+            // Computer can be malicious but can't have firewall, vice versa for Router
             if (selectedDevice.deviceType == DeviceType.Computer)
             {
                 checkBoxDeviceMalicious.Enabled = true;
@@ -137,9 +158,16 @@ namespace semestralka_routing_simulation
                 numericUpDownDeviceTimeProcess.Text = selectedDevice.timeToProcess.ToString();
             }
 
+            // Update section with connected devices
             ListBoxDeviceConnections_SelectedIndexChanged(listBoxDeviceConnections, e);
         }
 
+        /// <summary>
+        /// Sets up initial device configuration.
+        /// </summary>
+        /// <remarks>
+        /// This configuration also serves as an example of a network.
+        /// </remarks>
         private void InitializeDevices()
         {
             listBoxDevices.Items.Clear();
@@ -155,6 +183,9 @@ namespace semestralka_routing_simulation
             ((FormDevice)listBoxDevices.Items[0]).AddConnection((FormDevice) listBoxDevices.Items[2], 3);
         }
 
+        /// <summary>
+        /// Sets up default simulation parameters.
+        /// </summary>
         private void InitializeSimulationParameters()
         {
             ulong totalPackets = 5;
@@ -175,6 +206,9 @@ namespace semestralka_routing_simulation
             numericUpDownRandomSeed.Text = seed.ToString();
         }
 
+        /// <summary>
+        /// Tells GUI controls what input range they should accept.
+        /// </summary>
         private void SetInputLimits()
         {
             numericUpDownDeviceTransferTime.Maximum = int.MaxValue;
@@ -194,6 +228,9 @@ namespace semestralka_routing_simulation
             numericUpDownTimeout.Minimum = 1;
         }
 
+        /// <summary>
+        /// Update GUI section for device connections.
+        /// </summary>
         private void ListBoxDeviceConnections_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBoxDeviceConnections.SelectedItem is null)
@@ -215,8 +252,8 @@ namespace semestralka_routing_simulation
 
             int transfer_time = selectedDevice.GetTransferTime(selectedDeviceConnections);
             
-            // non-positive transfer time indicates there is no link
-            if (transfer_time > 0)
+            // negative transfer time indicates there is no link
+            if (transfer_time >= 0)
             {
                 checkBoxDeviceConnected.Checked = true;
                 numericUpDownDeviceTransferTime.Enabled = true;
@@ -224,6 +261,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Add new device with default configuration.
+        /// </summary>
         private void ButtonAdd_Click(object sender, EventArgs e)
         {
             if (nextID < int.MaxValue)
@@ -235,6 +275,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Remove device as well as all references to it.
+        /// </summary>
         private void ButtonRemove_Click(object sender, EventArgs e)
         {
             FormDevice selectedDevice = (FormDevice)listBoxDevices.SelectedItem;
@@ -248,6 +291,9 @@ namespace semestralka_routing_simulation
             buttonRemove.Enabled = false;
         }
 
+        /// <summary>
+        /// Create connection between selected devices.
+        /// </summary>
         private void CheckBoxDeviceConnected_Click(object sender, EventArgs e)
         {
             FormDevice device1 = (FormDevice)listBoxDevices.SelectedItem;
@@ -255,6 +301,7 @@ namespace semestralka_routing_simulation
             if (((CheckBox) sender).Checked)
             {
                 numericUpDownDeviceTransferTime.Enabled = true;
+                // Default transfer time
                 int timeToTransfer = 1;
                 device1.AddConnection(device2, timeToTransfer);
                 numericUpDownDeviceTransferTime.Text = timeToTransfer.ToString();
@@ -267,6 +314,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Update transfer time on link between selected devices.
+        /// </summary>
         private void NumericUpDownDeviceTransferTime_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
@@ -278,6 +328,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Change type of selected device.
+        /// </summary>
         private void ComboBoxDeviceType_SelectedIndexChanged(object sender, EventArgs e)
         {
             DeviceType dt = ((ComboBox)sender).SelectedIndex switch
@@ -293,6 +346,9 @@ namespace semestralka_routing_simulation
             listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)] = listBoxDevices.Items[listBoxDevices.Items.IndexOf(device)];
         }
 
+        /// <summary>
+        /// Assign firewall to selected router.
+        /// </summary>
         private void CheckBoxDeviceFirewall_Click(object sender, EventArgs e)
         {
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
@@ -311,6 +367,9 @@ namespace semestralka_routing_simulation
             }
         }
         
+        /// <summary>
+        /// Change firewall process time.
+        /// </summary>
         private void NumericUpDownDeviceTimeProcessFirewall_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
@@ -320,6 +379,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Change process time of router.
+        /// </summary>
         private void NumericUpDownDeviceTimeProcess_ValueChanged(object sender, EventArgs e)
         {
             if (((NumericUpDown)sender).Text != "")
@@ -329,6 +391,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Change maliciousness of computer
+        /// </summary>
         private void CheckBoxDeviceMalicious_Click(object sender, EventArgs e)
         {
             FormDevice device = (FormDevice)listBoxDevices.SelectedItem;
@@ -343,6 +408,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Open dialog for folder selection, save value to appropriate text box.
+        /// </summary>
         private void ButtonSelectFolder_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -357,6 +425,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Holds and manages data of device.
+    /// </summary>
     class FormDevice
     {
         public List<FormDevice> connections;
@@ -380,6 +451,9 @@ namespace semestralka_routing_simulation
             transferTimes = new List<int>();
         }
 
+        /// <summary>
+        /// Get transfer time on link between this device and another device.
+        /// </summary>
         public int GetTransferTime(FormDevice device)
         {
             foreach (FormDevice connectedDevice in connections)
@@ -393,7 +467,12 @@ namespace semestralka_routing_simulation
             return -1;
         }
 
-        // Adds connection to both devices
+        /// <summary>
+        /// Assign a neighboring device to this device, together with corresponding links' transfer time.
+        /// </summary>
+        /// <remarks>
+        /// Adds connection to both devices, so there is no need to call it twice.
+        /// </remarks>
         public void AddConnection(FormDevice device, int transferTime)
         {
             connections.Add(device);
@@ -403,7 +482,12 @@ namespace semestralka_routing_simulation
             device.transferTimes.Add(transferTime);
         }
 
-        // Removes connection from both devices
+        /// <summary>
+        /// Remove assigned neighboring device, together with corresponding links' transfer time. 
+        /// </summary>
+        /// <remarks>
+        /// Removes connection from both devices.
+        /// </remarks>
         public void RemoveConnection(FormDevice device)
         {
             int index = connections.IndexOf(device);
@@ -415,7 +499,12 @@ namespace semestralka_routing_simulation
             device.transferTimes.RemoveAt(index);
         }
 
-        // Changes transferTime for both
+        /// <summary>
+        /// Changes transfer time on link to its' neighbor.
+        /// </summary>
+        /// <remarks>
+        /// Changes transfer time corresponding to this link on both devices.
+        /// </remarks>
         public void ChangeTransferTime(FormDevice device, int transferTime)
         {
             int index = connections.IndexOf(device);
@@ -425,6 +514,9 @@ namespace semestralka_routing_simulation
             device.transferTimes[index] = transferTime;
         }
 
+        /// <summary>
+        /// Change device type.
+        /// </summary>
         public void SetType(DeviceType type)
         {
             if (deviceType == DeviceType.Router && type == DeviceType.Computer)
@@ -451,7 +543,10 @@ namespace semestralka_routing_simulation
         }
     }
 
-   class SimulationParametersDto
+    /// <summary>
+    /// Data transfer object holding simulation parameters.
+    /// </summary>
+    class SimulationParametersDto
     {
         public ListBox.ObjectCollection Devices { get; set; }
         public ulong TotalPackets { get; set; }
@@ -463,7 +558,10 @@ namespace semestralka_routing_simulation
         public int RandomSeed { get; set; }
     }
 
-   class ResultControls
+    /// <summary>
+    /// Holds references to GUI controls that show simulation results.
+    /// </summary>
+    class ResultControls
     {
         public TextBox SimulationLength { get; set; }
         public TextBox PacketsSent { get; set; }

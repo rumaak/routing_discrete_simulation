@@ -1,0 +1,419 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>semestralka-routing-simulation</name>
+    </assembly>
+    <members>
+        <member name="T:semestralka_routing_simulation.DeviceType">
+            <summary>
+            Type of device.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Form1">
+            <summary>
+            Form holding and manipulating GUI controls.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.StartSimulation">
+            <summary>
+            Prepare data for simulation and run it.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ListBoxDevices_SelectedIndexChanged(System.Object,System.EventArgs)">
+            <summary>
+            Updates Device section of GUI with respect to currently selected device.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.InitializeDevices">
+            <summary>
+            Sets up initial device configuration.
+            </summary>
+            <remarks>
+            This configuration also serves as an example of a network.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.InitializeSimulationParameters">
+            <summary>
+            Sets up default simulation parameters.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.SetInputLimits">
+            <summary>
+            Tells GUI controls what input range they should accept.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ListBoxDeviceConnections_SelectedIndexChanged(System.Object,System.EventArgs)">
+            <summary>
+            Update GUI section for device connections.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ButtonAdd_Click(System.Object,System.EventArgs)">
+            <summary>
+            Add new device with default configuration.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ButtonRemove_Click(System.Object,System.EventArgs)">
+            <summary>
+            Remove device as well as all references to it.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.CheckBoxDeviceConnected_Click(System.Object,System.EventArgs)">
+            <summary>
+            Create connection between selected devices.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.NumericUpDownDeviceTransferTime_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Update transfer time on link between selected devices.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ComboBoxDeviceType_SelectedIndexChanged(System.Object,System.EventArgs)">
+            <summary>
+            Change type of selected device.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.CheckBoxDeviceFirewall_Click(System.Object,System.EventArgs)">
+            <summary>
+            Assign firewall to selected router.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.NumericUpDownDeviceTimeProcessFirewall_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Change firewall process time.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.NumericUpDownDeviceTimeProcess_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Change process time of router.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.CheckBoxDeviceMalicious_Click(System.Object,System.EventArgs)">
+            <summary>
+            Change maliciousness of computer
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.ButtonSelectFolder_Click(System.Object,System.EventArgs)">
+            <summary>
+            Open dialog for folder selection, save value to appropriate text box.
+            </summary>
+        </member>
+        <member name="F:semestralka_routing_simulation.Form1.components">
+            <summary>
+             Required designer variable.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.Dispose(System.Boolean)">
+            <summary>
+             Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:semestralka_routing_simulation.Form1.InitializeComponent">
+            <summary>
+             Required method for Designer support - do not modify
+             the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.FormDevice">
+            <summary>
+            Holds and manages data of device.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.FormDevice.GetTransferTime(semestralka_routing_simulation.FormDevice)">
+            <summary>
+            Get transfer time on link between this device and another device.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.FormDevice.AddConnection(semestralka_routing_simulation.FormDevice,System.Int32)">
+            <summary>
+            Assign a neighboring device to this device, together with corresponding links' transfer time.
+            </summary>
+            <remarks>
+            Adds connection to both devices, so there is no need to call it twice.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.FormDevice.RemoveConnection(semestralka_routing_simulation.FormDevice)">
+            <summary>
+            Remove assigned neighboring device, together with corresponding links' transfer time. 
+            </summary>
+            <remarks>
+            Removes connection from both devices.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.FormDevice.ChangeTransferTime(semestralka_routing_simulation.FormDevice,System.Int32)">
+            <summary>
+            Changes transfer time on link to its' neighbor.
+            </summary>
+            <remarks>
+            Changes transfer time corresponding to this link on both devices.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.FormDevice.SetType(semestralka_routing_simulation.DeviceType)">
+            <summary>
+            Change device type.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.SimulationParametersDto">
+            <summary>
+            Data transfer object holding simulation parameters.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.ResultControls">
+            <summary>
+            Holds references to GUI controls that show simulation results.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Helpers">
+            <summary>
+            Contains universaly useful functions.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Helpers.GetNextUniform(System.UInt64,System.Random)">
+            <summary>
+            Return a random ulong with uniform distribution.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Helpers.GetNextGaussian(System.UInt64,System.Random)">
+            <summary>
+            Return a random ulong with Gaussian distribution (but discrete).
+            </summary>
+            <remarks>
+            <para>There is no choice for user to alter distributions parameters - mean and variance
+            are hardcoded to <c>maxTime / 2</c> and <c>maxTime / 4</c> respectively.
+            These parameters correspond to probability density being about 8 times greater
+            in point <c>maxTime / 2</c> compared to points at the ends of distribution, while
+            still leaving only minimum of probability left for points out of bounds (ie smaller
+            than 0 and bigger than <c>maxTime</c>. </para>
+            <para>Also, I wanted to use Poisson, but factorial doesn't make good friends with
+            big numbers.</para>
+            </remarks>
+        </member>
+        <member name="T:semestralka_routing_simulation.Process">
+            <summary>
+            Class responsible for acting upon events.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Process.HandleEvent(semestralka_routing_simulation.SimulationEvent,semestralka_routing_simulation.Model)">
+            <summary>
+            Act upon event.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Process.AddPacketOut(semestralka_routing_simulation.Packet)">
+            <summary>
+            Add packet to set of outgoing packets.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Process.AddPacketOutTimeout(System.UInt64)">
+            <summary>
+            Add timeout to set of timeouts corresponding to outgoing packets.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Link">
+            <summary>
+            Process representing connection between two devices, controls packet transfers between them.
+            </summary>
+            <remarks>
+            Links are one-directional, i.e. for two connected devices there are two links.
+            </remarks>
+        </member>
+        <member name="T:semestralka_routing_simulation.Firewall">
+            <summary>
+            Process representing firewall on router, discards malicious packets.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Device">
+            <summary>
+            Represents a device. 
+            Aside from being a process, it also has a set of links, a routing index and set of incoming packets.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Device.AddLink(semestralka_routing_simulation.Link)">
+            <summary>
+            Add link to devices' set of links.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Device.AddPacketIn(semestralka_routing_simulation.Packet)">
+            <summary>
+            Add packet to devices' set of incoming packets.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Device.AddPacketInTimeout(System.UInt64)">
+            <summary>
+            Add timeout corresponding to incoming packet.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Device.GetLink(semestralka_routing_simulation.Packet,semestralka_routing_simulation.Model)">
+            <summary>
+            Looks for link connected to next hop device for given packet and returns it.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Router">
+            <summary>
+            Represents a physical router, prime responsibility is forwarding packets to next hop device on path to destination computer.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Router.SetFirewall(semestralka_routing_simulation.Firewall)">
+            <summary>
+            Assign a firewall to router.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Computer">
+            <summary>
+            Represents physical computer, that is source and destination for packets in network.
+            </summary>
+            <remarks>
+            Computer cannot forward packet, as opposed to router.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.Computer.SendPacket(semestralka_routing_simulation.Packet,semestralka_routing_simulation.Model)">
+            <summary>
+            Prepare packet, delegate it to proper link and setup timeout.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Program.Main">
+            <summary>
+             The main entry point for the application.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.EventType">
+            <summary>
+            Possible types of events that can occur throughout simulation.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Distribution">
+            <summary>
+            Distribution of timestamps of generated packets.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Packet">
+            <summary>
+            Represents real packets, stores values related to its' current state.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.SimulationEvent">
+            <summary>
+            Class representing a simulation event, stores event related data.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.SimulationEvent.Execute(semestralka_routing_simulation.Model)">
+            <summary>
+            Inform corresponding process that this event is taking place.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Scheduler">
+            <summary>
+            Holds and manages events.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Scheduler.GetFirst">
+            <summary>
+            Return event with smallest timestamp.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Scheduler.Add(semestralka_routing_simulation.SimulationEvent)">
+            <summary>
+            Add an event.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Model">
+            <summary>
+            Class representing simulated environment, holds all the data related to it.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Model.ExtractDevices(System.Windows.Forms.ListBox.ObjectCollection)">
+            <summary>
+            Creates processes corresponding to supplied data.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Model.GeneratePackets(semestralka_routing_simulation.SimulationParametersDto)">
+            <summary>
+            Creates and assigns packets based on simulation parameters.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Simulation">
+            <summary>
+            Class managing simulation setup, run and post-run tasks.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Simulation.UpdateResults(semestralka_routing_simulation.Statistics,semestralka_routing_simulation.ResultControls)">
+            <summary>
+            Updates GUI with latest simulation statistics.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Simulation.ChangeText(System.Windows.Forms.TextBox,System.String)">
+            <summary>
+            Changes TextBox text in thread-safe manner.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Simulation.EnableInput(System.Windows.Forms.Panel)">
+            <summary>
+            Enables input controls in thread-safe manner.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Simulation.SaveToFile(semestralka_routing_simulation.Statistics,System.String)">
+            <summary>
+            Saves simulation results into file.
+            </summary>
+            <remarks>
+            Attempts to save data to folder specified in textBoxFolder, if it was provided. File name corresponds to current date and time.
+            If writing to file doesn't end successfuly, a MessageBox with error message is shown.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.Simulation.Run(semestralka_routing_simulation.SimulationParametersDto,semestralka_routing_simulation.ResultControls,System.String,System.Windows.Forms.Panel)">
+            <summary>
+            Simulation entry point.
+            Sets up model and related objects, carries out the simulation, publishes simulation results.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Routing">
+            <summary>
+            Class responsible for routing in model.
+            Creates, fills and manages routing tables and provides other functionalities that concern them.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Routing.AssignRoutingIndices">
+            <summary>
+            Assignes unique routing index to every device corresponding to its' row / column in routing table.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Routing.InitializeRoutingTables">
+            <summary>
+            Fills routing tables with starting values.
+            </summary>
+            <remarks>
+            For successors, either neighbors index or -1 is used. For weights, either weight of corresponding connection or ulong.MaxValue is used.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.Routing.ComputeRoutingTables">
+            <summary>
+            Uses Floyd-Warshall algorithm to compute final static routing tables.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Routing.ExistsUnreachable">
+            <summary>
+            Check if there exists pair of computers that can't reach each other.
+            </summary>
+        </member>
+        <member name="T:semestralka_routing_simulation.Statistics">
+            <summary>
+            Class for storing and manipulating simulation results.
+            </summary>
+        </member>
+        <member name="M:semestralka_routing_simulation.Statistics.GetAverageDeliveryTime">
+            <summary>
+            Compute how long did it take on average for packet to go from source to destination computer.
+            </summary>
+            <remarks>
+            Includes malicious packets. Can return infinity.
+            </remarks>
+        </member>
+        <member name="M:semestralka_routing_simulation.Statistics.GetAverageNumberAttempts">
+            <summary>
+            Compute how long did it take on average for packet to go from source to destination computer.
+            </summary>
+            <remarks>
+            Doesn't include malicious packets (they are resent after being rejected by firewall). Can return infinity.
+            </remarks>
+        </member>
+    </members>
+</doc>

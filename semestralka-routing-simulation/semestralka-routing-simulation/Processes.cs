@@ -1,29 +1,56 @@
-﻿using System;
+﻿// Discrete simulation of routing
+// Jan Ruman, 1st year of study
+// Summer term, 2019 / 2020
+// NPRG031
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
 namespace semestralka_routing_simulation
 {
+    /// <summary>
+    /// Class responsible for acting upon events.
+    /// </summary>
     abstract class Process
     {
         public int ID;
         protected List<Packet> packetsOut;
+        
+        // It might've happened that during manipulation with packet a Timeout event has occured and packets own 
+        // timeout field has been rewritten - because of this, we keep list of original timeouts of packets, so that
+        // when packets timeout changes, we will know about it.
         protected List<ulong> packetsOutTimeouts;
 
+        /// <summary>
+        /// Act upon event.
+        /// </summary>
         public abstract void HandleEvent(SimulationEvent simEvent, Model model);
+
+        /// <summary>
+        /// Add packet to set of outgoing packets.
+        /// </summary>
         public void AddPacketOut(Packet packetOut)
         {
             packetsOut.Add(packetOut);
         }
+
+        /// <summary>
+        /// Add timeout to set of timeouts corresponding to outgoing packets.
+        /// </summary>
         public void AddPacketOutTimeout(ulong timeout)
         {
             packetsOutTimeouts.Add(timeout);
         }
     }
 
-    // Links are one-directional, i.e. for two connected devices there are two links.
-    // The network itself isn't directed, but this representation is more practical.
+    /// <summary>
+    /// Process representing connection between two devices, controls packet transfers between them.
+    /// </summary>
+    /// <remarks>
+    /// Links are one-directional, i.e. for two connected devices there are two links.
+    /// </remarks>
     class Link : Process
     {
         public int toID, timeToTransfer;
@@ -50,6 +77,7 @@ namespace semestralka_routing_simulation
                     Packet packet = packetsOut[0];
                     ulong packetTimeout = packetsOutTimeouts[0];
 
+                    // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         SimulationEvent finishSending = new SimulationEvent(model.time + (ulong)timeToTransfer, this, EventType.FinishSending);
@@ -75,8 +103,10 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsOutTimeouts[0];
                 packetsOutTimeouts.RemoveAt(0);
 
+                // Check if packet didn't already time out.
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
+                    // Delegate packet to next hop device on its' path to destination computer
                     int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
                     int nextHopRoutingIndex = model.routing.routingTableSuccessors[sourceDevice.routingTableIndex, destinationRoutingIndex];
                     Device nextHopDevice = model.routing.routingIndexToDevice[nextHopRoutingIndex];
@@ -98,6 +128,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Process representing firewall on router, discards malicious packets.
+    /// </summary>
     class Firewall : Process
     {
         public int timeToProcess;
@@ -121,6 +154,7 @@ namespace semestralka_routing_simulation
                     Packet packet = packetsOut[0];
                     ulong packetTimeout = packetsOutTimeouts[0];
 
+                    // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
@@ -147,6 +181,7 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsOutTimeouts[0];
                 packetsOutTimeouts.RemoveAt(0);
 
+                // Check if packet isn't malicious or didn't already time out.
                 if (packet.malicious)
                 {
                     Debug.WriteLine($"Firewall {this.ID} found out that packet {packet.ID} is malicious and discarded it.");
@@ -169,6 +204,10 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Represents a device. 
+    /// Aside from being a process, it also has a set of links, a routing index and set of incoming packets.
+    /// </summary>
     abstract class Device : Process
     {
         public int routingTableIndex;
@@ -176,18 +215,33 @@ namespace semestralka_routing_simulation
         protected List<Packet> packetsIn;
         protected List<ulong> packetsInTimeouts;
 
+        /// <summary>
+        /// Add link to devices' set of links.
+        /// </summary>
         public void AddLink(Link link)
         {
             links.Add(link);
         }
+
+        /// <summary>
+        /// Add packet to devices' set of incoming packets.
+        /// </summary>
         public void AddPacketIn(Packet packetIn)
         {
             packetsIn.Add(packetIn);
         }
+
+        /// <summary>
+        /// Add timeout corresponding to incoming packet.
+        /// </summary>
         public void AddPacketInTimeout(ulong timeout)
         {
             packetsInTimeouts.Add(timeout);
         }
+
+        /// <summary>
+        /// Looks for link connected to next hop device for given packet and returns it.
+        /// </summary>
         protected Link GetLink(Packet packet, Model model)
         {
             int destinationRoutingIndex = model.routing.deviceIndexToRoutingIndex[packet.destination];
@@ -207,6 +261,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Represents a physical router, prime responsibility is forwarding packets to next hop device on path to destination computer.
+    /// </summary>
     class Router : Device
     {
         public int timeToProcess;
@@ -226,6 +283,9 @@ namespace semestralka_routing_simulation
             firewall = null;
         }
 
+        /// <summary>
+        /// Assign a firewall to router.
+        /// </summary>
         public void SetFirewall(Firewall firewall)
         {
             this.firewall = firewall;
@@ -235,6 +295,7 @@ namespace semestralka_routing_simulation
         {
             if (simEvent.eventType == EventType.SendPacket)
             {
+                // Delegate packet to corresponding link.
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
@@ -255,6 +316,7 @@ namespace semestralka_routing_simulation
                     Packet packet = packetsIn[0];
                     ulong packetTimeout = packetsInTimeouts[0];
 
+                    // Check if packet didn't already time out.
                     if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                     {
                         processing = true;
@@ -281,8 +343,10 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsInTimeouts[0];
                 packetsInTimeouts.RemoveAt(0);
 
+                // Check if packet didn't already time out.
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
+                    // If there is firewall associated with this router, delegate it this packet
                     if (firewall != null)
                     {
                         SimulationEvent processPacket = new SimulationEvent(model.time, firewall, EventType.ProcessPacket);
@@ -309,6 +373,12 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Represents physical computer, that is source and destination for packets in network.
+    /// </summary>
+    /// <remarks>
+    /// Computer cannot forward packet, as opposed to router.
+    /// </remarks>
     class Computer : Device
     {
 
@@ -328,6 +398,7 @@ namespace semestralka_routing_simulation
             packetsOutTimeouts = new List<ulong>();
             packetsInTimeouts = new List<ulong>();
         }
+
         public override void HandleEvent(SimulationEvent simEvent, Model model)
         {
             if (simEvent.eventType == EventType.SendPacket)
@@ -335,6 +406,7 @@ namespace semestralka_routing_simulation
                 Packet packet = packetsOut[0];
                 packetsOut.RemoveAt(0);
 
+                // Used to measure how long it took to deliver packet
                 packet.timeFirstSent = model.time;
 
                 SendPacket(packet, model);
@@ -355,6 +427,7 @@ namespace semestralka_routing_simulation
                 ulong packetTimeout = packetsInTimeouts[0];
                 packetsInTimeouts.RemoveAt(0);
 
+                // Check if packet didn't already time out.
                 if (model.time <= packet.timeout && packetTimeout == packet.timeout)
                 {
                     packet.received = true;
@@ -386,6 +459,7 @@ namespace semestralka_routing_simulation
 
                 if (!packet.received)
                 {
+                    // If the packet isn't delivered in time and hasn't been sent too many times, send it again.
                     if (packet.attemptNumber < model.timeoutAttempts)
                     {
                         SendPacket(packet, model);
@@ -399,8 +473,13 @@ namespace semestralka_routing_simulation
 
             }
         }
+
+        /// <summary>
+        /// Prepare packet, delegate it to proper link and setup timeout.
+        /// </summary>
         private void SendPacket(Packet packet, Model model)
         {
+            // Update packets' timeout
             packet.timeout = model.time + model.timeout;
 
             Link link = GetLink(packet, model);
@@ -411,7 +490,7 @@ namespace semestralka_routing_simulation
             model.scheduler.Add(sendPacket);
 
             // Adding a single tick because timeout is inclusive (i.e. if packet arrives precisely in time of timeout,
-            // it is still considered to be received and it shouldn't be resent)
+            // it is still considered to be received and it shouldn't be resent).
             SimulationEvent resolveTimeout = new SimulationEvent(packet.timeout + 1, this, EventType.Timeout);
             packetsSent.Add(packet);
             model.scheduler.Add(resolveTimeout);

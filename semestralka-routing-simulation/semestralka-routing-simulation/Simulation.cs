@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Discrete simulation of routing
+// Jan Ruman, 1st year of study
+// Summer term, 2019 / 2020
+// NPRG031
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,7 +12,10 @@ using System.Windows.Forms;
 
 namespace semestralka_routing_simulation
 {
-    public enum EventType
+    /// <summary>
+    /// Possible types of events that can occur throughout simulation.
+    /// </summary>
+    enum EventType
     {
         SendPacket,
         FinishSending,
@@ -16,12 +24,18 @@ namespace semestralka_routing_simulation
         Timeout
     }
 
-    public enum Distribution
+    /// <summary>
+    /// Distribution of timestamps of generated packets.
+    /// </summary>
+    enum Distribution
     {
         Uniform,
         DiscreteGaussian
     }
 
+    /// <summary>
+    /// Represents real packets, stores values related to its' current state.
+    /// </summary>
     class Packet
     {
         public int source, destination, attemptNumber;
@@ -39,6 +53,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Class representing a simulation event, stores event related data.
+    /// </summary>
     class SimulationEvent 
     {
         public ulong time;
@@ -52,6 +69,9 @@ namespace semestralka_routing_simulation
             this.eventType = eventType;
         }
 
+        /// <summary>
+        /// Inform corresponding process that this event is taking place.
+        /// </summary>
         public void Execute(Model model)
         {
 
@@ -60,6 +80,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Holds and manages events.
+    /// </summary>
     class Scheduler
     {
         List<SimulationEvent> events;
@@ -69,6 +92,9 @@ namespace semestralka_routing_simulation
             events = new List<SimulationEvent>();
         }
 
+        /// <summary>
+        /// Return event with smallest timestamp.
+        /// </summary>
         public SimulationEvent GetFirst()
         {
             SimulationEvent first = null;
@@ -86,12 +112,18 @@ namespace semestralka_routing_simulation
             return first;
         }
 
+        /// <summary>
+        /// Add an event.
+        /// </summary>
         public void Add(SimulationEvent simEvent) 
         {
             events.Add(simEvent);
         }
     }
 
+    /// <summary>
+    /// Class representing simulated environment, holds all the data related to it.
+    /// </summary>
     class Model
     {
         public ulong time, timeout;
@@ -109,6 +141,8 @@ namespace semestralka_routing_simulation
             routers = new List<Router>();
             computers = new List<Computer>();
             firewalls = new List<Firewall>();
+
+            // These are used only for creation of links and firewalls, not during simulation itself
             linkIndex = 1;
             firewallIndex = 1;
 
@@ -119,6 +153,9 @@ namespace semestralka_routing_simulation
             this.routing = routing;
         }
 
+        /// <summary>
+        /// Creates processes corresponding to supplied data.
+        /// </summary>
         public void ExtractDevices(ListBox.ObjectCollection devices)
         {
             foreach (FormDevice device in devices)
@@ -127,6 +164,7 @@ namespace semestralka_routing_simulation
                 {
                     Computer computer = new Computer(device.ID, routing.deviceIndexToRoutingIndex[device.ID], device.malicious);
 
+                    // Add links to computer that correspond with connected neighboring devices.
                     for (int i = 0; i < device.connections.Count; i++)
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], computer);
@@ -142,6 +180,7 @@ namespace semestralka_routing_simulation
                 {
                     Router router = new Router(device.ID, device.timeToProcess, routing.deviceIndexToRoutingIndex[device.ID]);
 
+                    // Add links to router that correspond with connected neighboring devices.
                     for (int i = 0; i < device.connections.Count; i++)
                     {
                         Link link = new Link(linkIndex, device.connections[i].ID, device.transferTimes[i], router);
@@ -149,6 +188,7 @@ namespace semestralka_routing_simulation
                         router.AddLink(link);
                     }
 
+                    // If specified, assign firewall to router.
                     if (device.firewall)
                     {
                         Firewall firewall = new Firewall(firewallIndex, device.firewallTimeToProcess, router);
@@ -163,6 +203,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Creates and assigns packets based on simulation parameters.
+        /// </summary>
         public void GeneratePackets(SimulationParametersDto simulationParameters)
         {
             Random rnd = new Random(simulationParameters.RandomSeed);
@@ -184,6 +227,7 @@ namespace semestralka_routing_simulation
                 int to = rnd.Next(computers.Count);
                 ulong when = 0;
 
+                // Loopbacks are forbidden hahahaa
                 if (from == to) continue;
 
                 bool malicious = false;
@@ -192,6 +236,7 @@ namespace semestralka_routing_simulation
                     malicious = rnd.NextDouble() < simulationParameters.ProbabilityMalicious;
                 }
 
+                // Assign time of sending for packet with respect to selected probability mass function.
                 if (distribution == Distribution.Uniform)
                 {
                     when = Helpers.GetNextUniform(simulationParameters.SendUntil, rnd);
@@ -216,12 +261,18 @@ namespace semestralka_routing_simulation
             }
         }
     }
-    
+
+    /// <summary>
+    /// Class managing simulation setup, run and post-run tasks.
+    /// </summary>
     class Simulation
     {
         public delegate void SafeCallDelegateTextBox(TextBox output, string text);
         public delegate void SafeCallDelegatePanel(Panel panelInput);
 
+        /// <summary>
+        /// Updates GUI with latest simulation statistics.
+        /// </summary>
         private void UpdateResults(Statistics statistics, ResultControls controls)
         {
             ChangeText(controls.SimulationLength, statistics.lengthOfSimulation.ToString());
@@ -233,6 +284,9 @@ namespace semestralka_routing_simulation
             ChangeText(controls.AverageAttempts, statistics.GetAverageNumberAttempts().ToString());
         }
 
+        /// <summary>
+        /// Changes TextBox text in thread-safe manner.
+        /// </summary>
         private void ChangeText(TextBox output, string text)
         {
             if (output.InvokeRequired)
@@ -246,6 +300,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Enables input controls in thread-safe manner.
+        /// </summary>
         private void EnableInput(Panel panelInput)
         {
             if (panelInput.InvokeRequired)
@@ -259,6 +316,13 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Saves simulation results into file.
+        /// </summary>
+        /// <remarks>
+        /// Attempts to save data to folder specified in textBoxFolder, if it was provided. File name corresponds to current date and time.
+        /// If writing to file doesn't end successfuly, a MessageBox with error message is shown.
+        /// </remarks>
         private void SaveToFile(Statistics statistics, string folderPath)
         {
             if (folderPath != "")
@@ -287,20 +351,27 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Simulation entry point.
+        /// Sets up model and related objects, carries out the simulation, publishes simulation results.
+        /// </summary>
         public void Run(SimulationParametersDto simulationParameters, ResultControls controls, string folderPath, Panel panelInput)
         {
             Debug.WriteLine("Simulation started");
 
+            // Initialize model and related objects
             Scheduler scheduler = new Scheduler();
             Statistics statistics = new Statistics();
             Routing routing = new Routing(simulationParameters.Devices);
             Model model = new Model(scheduler, simulationParameters.Timeout, simulationParameters.NumberAttempts, statistics, routing);
 
+            // Create routing tables and extract device information from GUI
             routing.AssignRoutingIndices();
             model.ExtractDevices(simulationParameters.Devices);
             routing.InitializeRoutingTables();
             routing.ComputeRoutingTables();
 
+            // If there is a computer not reachable from another computer, exit.
             if (routing.ExistsUnreachable())
             {
                 MessageBox.Show("Some devices are unreachable.", "Devices unreachable", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -311,6 +382,7 @@ namespace semestralka_routing_simulation
 
             model.GeneratePackets(simulationParameters);
 
+            // Main simulation loop.
             SimulationEvent simEvent = scheduler.GetFirst();
             ulong lastTime = 0;
             while (simEvent != null)
@@ -337,6 +409,10 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Class responsible for routing in model.
+    /// Creates, fills and manages routing tables and provides other functionalities that concern them.
+    /// </summary>
     class Routing
     {
         private int routingIndex;
@@ -359,6 +435,9 @@ namespace semestralka_routing_simulation
             this.devices = devices;
         }
 
+        /// <summary>
+        /// Assignes unique routing index to every device corresponding to its' row / column in routing table.
+        /// </summary>
         public void AssignRoutingIndices()
         {
             foreach (FormDevice device in devices)
@@ -369,9 +448,14 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Fills routing tables with starting values.
+        /// </summary>
+        /// <remarks>
+        /// For successors, either neighbors index or -1 is used. For weights, either weight of corresponding connection or ulong.MaxValue is used.
+        /// </remarks>
         public void InitializeRoutingTables()
         {
-
             for (int i = 0; i < devices.Count; i++)
             {
                 for (int j = 0; j < devices.Count; j++)
@@ -384,6 +468,7 @@ namespace semestralka_routing_simulation
                     else
                     {
                         routingTableSuccessors[i, j] = -1;
+
                         // Each connections' transfer time is limited by int.MaxValue, the number of possible indices for devices
                         // is also limited by int.MaxValue, and because int.MaxValue * int.MaxValue < ulong.MaxValue, this is safe
                         routingTableWeights[i, j] = ulong.MaxValue;
@@ -391,6 +476,7 @@ namespace semestralka_routing_simulation
                 }
             }
 
+            // Fill in values for directly connected devices
             foreach (FormDevice device in devices)
             {
                 int sourceIndex = deviceIndexToRoutingIndex[device.ID];
@@ -405,6 +491,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Uses Floyd-Warshall algorithm to compute final static routing tables.
+        /// </summary>
         public void ComputeRoutingTables()
         {
             int n = routingTableSuccessors.GetLength(1);
@@ -436,6 +525,9 @@ namespace semestralka_routing_simulation
             }
         }
 
+        /// <summary>
+        /// Check if there exists pair of computers that can't reach each other.
+        /// </summary>
         public bool ExistsUnreachable()
         {
             for (int i = 0; i < routingTableSuccessors.GetLength(1); i++)
@@ -459,6 +551,9 @@ namespace semestralka_routing_simulation
         }
     }
 
+    /// <summary>
+    /// Class for storing and manipulating simulation results.
+    /// </summary>
     class Statistics
     {
         public ulong lengthOfSimulation;
@@ -477,13 +572,23 @@ namespace semestralka_routing_simulation
             totalNumberAttempts = 0;
         }
 
-        // Can be infinity, includes malicious packets
+        /// <summary>
+        /// Compute how long did it take on average for packet to go from source to destination computer.
+        /// </summary>
+        /// <remarks>
+        /// Includes malicious packets. Can return infinity.
+        /// </remarks>
         public double GetAverageDeliveryTime()
         {
             return totalDeliveryTime / deliveredPackets;
         }
 
-        // Can be infinity, doesn't include malicious packets
+        /// <summary>
+        /// Compute how long did it take on average for packet to go from source to destination computer.
+        /// </summary>
+        /// <remarks>
+        /// Doesn't include malicious packets (they are resent after being rejected by firewall). Can return infinity.
+        /// </remarks>
         public double GetAverageNumberAttempts()
         {
             return totalNumberAttempts / (deliveredPackets - deliveredPacketsMalicious);
