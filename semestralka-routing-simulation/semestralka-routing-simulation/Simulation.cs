@@ -74,7 +74,6 @@ namespace semestralka_routing_simulation
         /// </summary>
         public void Execute(Model model)
         {
-
             Debug.WriteLine($"{time}: Process {process.GetType().Name}{process.ID} is handling event of type {eventType}");
             process.HandleEvent(this, model);
         }
@@ -414,7 +413,21 @@ namespace semestralka_routing_simulation
             while (simEvent != null)
             {
                 model.time = simEvent.time;
-                simEvent.Execute(model);
+
+                // Check overflow
+                try
+                {
+                    simEvent.Execute(model);
+                }
+                catch (OverflowException)
+                {
+                    MessageBox.Show("Overflow has occured. Consider lowering Timeout and Send until simulation parameters", 
+                        "Overflow", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Debug.WriteLine($"Overflow");
+                    EnableInput(panelInput);
+                    return;
+                }
+                
                 simEvent = scheduler.GetFirst();
                 if (model.time != lastTime)
                 {
